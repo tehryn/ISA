@@ -1,7 +1,7 @@
 all: popser
 
 popser: popser.o
-	g++ -std=c++11 popser.o -o popser
+	g++ -std=c++11 -g popser.o -o popser -lpthread
 
-popser.o: popser.cpp
-	g++ -std=c++11 -c popser.cpp
+popser.o: popser.cpp Makefile
+	g++ -std=c++11 -c -g popser.cpp

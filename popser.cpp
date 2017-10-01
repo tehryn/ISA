@@ -4,15 +4,31 @@
 #include <stdexcept>
 #include <fstream>
 #include <csignal>
+#include <thread>
 
-//#include <string.h>
-//#include <unistd.h>
-//#include <sys/socket.h>
-//#include <netinet/in.h>
+#include <string.h>      // memset()
+#include <unistd.h>      // close()
+#include <sys/socket.h>  // prace se sockety
+#include <netinet/in.h>  // sockaddr_in
 //#include <sys/stat.h>
 //#include <dirent.h>
 
+enum {
+	ERR_ARGUMENT = 1,
+	ERR_SOCKET,
+	ERR_SEND,
+	ERR_RECIEVE,
+	ERR_BIND,
+	ERR_LISTEN
+};
+
+#define MAX_LEN_OF_QUEUE 16
 using namespace std;
+
+vector<thread *> threads;
+vector<int>      sockets;
+string              user = "MMMaster";
+string              pass = "heslo";
 
 /**
  * Class that stores program setings
@@ -81,30 +97,152 @@ Arguments::Arguments( int argc, char **argv ) {
 	}
 }
 
-void fatal_error( char *message, int return_code, void ** mem_to_free, unsigned len ) {
-	cerr << message << endl;
-	for ( uint i = 0; i < len; i++ ) {
-		free( mem_to_free[i] );
-	}
-	exit( return_code );
-}
-
 void quit( int sig ) {
+	cerr << "Closing connections." << endl;
+	for( thread * & t: threads ) {
+		t->detach();
+		delete t;
+	}
+	for ( int & sock: sockets ) {
+		close( sock );
+	}
 	cerr << "Closing server." << endl;
 	exit(0);
 }
 
+void talk_with_client( int sockcomm ) {
+	string message      = "+OK Hello, my name is Debbie and I am POP3 sever.\r\n";
+	string login        = "";
+	string password     = "";
+	bool   send_message = true;
+	char   request[256] = {0, };
+
+	if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
+		cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
+		close( sockcomm );
+		return;
+	}
+
+	message.clear();
+	while ( recv( sockcomm, request, 255, 0 ) ) {
+		message += request;
+		memset( request, 0, 256); // setting whole content of buffer to 0
+		size_t idx = message.find( "\r\n" );
+		if ( idx == string::npos ) {
+			continue;
+		}
+
+		if ( !strncmp(message.c_str(), "USER", 4 ) ) {
+			if ( message.size() <= 7 ) {
+				message = "-ERR Sorry, i did't catch your name, what was it? (Too few arguments)\r\n";
+			}
+			else {
+				if ( message[4] == '\t' || message[4] == ' ' ) {
+					login = message.substr( 5, message.size() - 7 );
+					if ( login == user ) {
+						message = "+OK I knew you will come back! But is it really you? Tell me password! (User accepted)\r\n";
+					}
+					else {
+						message = "-ERR I don't know you and I will not share my private data with stranger.(Unknown user)\r\n";
+					}
+				}
+			}
+			send_message = true;
+		}
+		else if ( !strncmp(message.c_str(), "PASS", 4 ) ) {
+			if ( message.size() <= 7 ) {
+				message = "-ERR Sorry, but can you tell me your deepest secret again? (Too few arguments)\r\n";
+			}
+			else if ( login == "" ) {
+				message = "-ERR It's nice, that you told me your secret, but who are you? (No user specified)\r\n";
+			}
+			else {
+				if ( message[4] == '\t' || message[4] == ' ' ) {
+					password = message.substr( 5, message.size() - 7 );
+					if ( pass == password ) {
+						message = "+OK Ohhh, it's you! (Password accepted)\r\n";
+					}
+					else {
+						message = "-ERR No! It's not you! (Wrong password)\r\n";
+					}
+				}
+			}
+			send_message = true;
+		}
+		else if ( !strncmp(message.c_str(), "STAT", 4 ) ) {}
+		else if ( !strncmp(message.c_str(), "LIST", 4 ) ) {}
+		else if ( !strncmp(message.c_str(), "RETR", 4 ) ) {}
+		else if ( !strncmp(message.c_str(), "DELE", 4 ) ) {}
+		else if ( !strncmp(message.c_str(), "RSET", 4 ) ) {}
+		else if ( !strncmp(message.c_str(), "QUIT", 4 ) ) {
+			message = "+OK Farwell my fiend. I will never forget the time we spent together. (Closing connection)\r\n";
+			break;
+		}
+		else if ( !strncmp(message.c_str(), "TOP",  3 ) ) {}
+		else {
+			message      = "-ERR I don't know what you want. ( Unknown command )\r\n";
+			send_message = true;
+		}
+		if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
+			cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
+			close( sockcomm );
+			return;
+		}
+		message.clear();
+	}
+	if ( message.size() > 0 ) {
+		if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
+			cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
+		}
+	}
+	close( sockcomm );
+}
+
 int main( int argc, char **argv) {
-	signal(SIGTERM, quit);
-	signal(SIGINT, quit);
+	int sockfd,                  // Soclet descriptor
+		sockcomm;                // Socket descriptor
+		socklen_t clilen;        // Size of clien's addres
+		struct sockaddr_in serv_addr = {},
+						   cli_addr  = {};
+	signal( SIGTERM, quit );
+	signal( SIGINT, quit );
 	Arguments args;
 	try {
-		args = Arguments(argc, argv);
+		args = Arguments( argc, argv );
 	} catch ( invalid_argument& e ) {
 		cerr << e.what() << endl;
-		return 1;
+		return ERR_ARGUMENT;
 	}
-	cout << args.port << endl;
 
+    sockfd = socket( AF_INET, SOCK_STREAM, 0 );
+    if ( sockfd < 0 ) {
+        cerr << "ERROR: Could not open socket" << endl;
+        return ERR_SOCKET;
+    }
+
+	int optval = 1;
+    setsockopt( sockfd, SOL_SOCKET, SO_REUSEADDR,( const void * )&optval , sizeof(int) );
+
+	memset( ( void * ) &serv_addr, 0 , sizeof( serv_addr ) );
+    serv_addr.sin_family      = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port        = htons( args.port );
+
+	if ( bind( sockfd, ( struct sockaddr * ) &serv_addr, sizeof( serv_addr ) ) < 0 ) {
+        cerr << "ERROR: Unable to bind" << endl;
+        return ERR_BIND;
+    }
+	if ( listen( sockfd, MAX_LEN_OF_QUEUE ) < 0 ) {
+		cerr << "ERROR: Unable to listen" << endl;
+		return ERR_LISTEN;
+	}
+	while (true) {
+		clilen = sizeof( cli_addr );
+		sockcomm = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
+		if ( sockcomm > 0 ) {
+			threads.push_back( new thread( talk_with_client, sockcomm ) );
+			sockets.push_back( sockcomm );
+		}
+	}
 	return 0;
 }
