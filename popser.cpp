@@ -1,34 +1,13 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <stdexcept>
-#include <fstream>
-#include <csignal>
-#include <thread>
-
-#include <string.h>      // memset()
-#include <unistd.h>      // close()
-#include <sys/socket.h>  // prace se sockety
-#include <netinet/in.h>  // sockaddr_in
-//#include <sys/stat.h>
-//#include <dirent.h>
-
-enum {
-	ERR_ARGUMENT = 1,
-	ERR_SOCKET,
-	ERR_SEND,
-	ERR_RECIEVE,
-	ERR_BIND,
-	ERR_LISTEN
-};
+#include "popser.hpp"
 
 #define MAX_LEN_OF_QUEUE 16
+
 using namespace std;
 
 vector<thread *> threads;
 vector<int>      sockets;
-string              user = "MMMaster";
-string              pass = "heslo";
+string              user = "";
+string              pass = "";
 
 /**
  * Class that stores program setings
@@ -110,11 +89,11 @@ void quit( int sig ) {
 	exit(0);
 }
 
-void talk_with_client( int sockcomm ) {
+void talk_with_client( int sockcomm, const char * directory ) {
 	string message      = "+OK Hello, my name is Debbie and I am POP3 sever.\r\n";
 	string login        = "";
 	string password     = "";
-	bool   send_message = true;
+	uint   state        = STATE_START;
 	char   request[256] = {0, };
 
 	if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
@@ -124,64 +103,42 @@ void talk_with_client( int sockcomm ) {
 	}
 
 	message.clear();
-	while ( recv( sockcomm, request, 255, 0 ) ) {
+	while ( state != STATE_QUIT && recv( sockcomm, request, 255, 0 ) ) {
 		message += request;
 		memset( request, 0, 256); // setting whole content of buffer to 0
 		size_t idx = message.find( "\r\n" );
 		if ( idx == string::npos ) {
 			continue;
 		}
-
 		if ( !strncmp(message.c_str(), "USER", 4 ) ) {
-			if ( message.size() <= 7 ) {
-				message = "-ERR Sorry, i did't catch your name, what was it? (Too few arguments)\r\n";
-			}
-			else {
-				if ( message[4] == '\t' || message[4] == ' ' ) {
-					login = message.substr( 5, message.size() - 7 );
-					if ( login == user ) {
-						message = "+OK I knew you will come back! But is it really you? Tell me password! (User accepted)\r\n";
-					}
-					else {
-						message = "-ERR I don't know you and I will not share my private data with stranger.(Unknown user)\r\n";
-					}
-				}
-			}
-			send_message = true;
+			message = process_user( &message, &state, &user );
 		}
 		else if ( !strncmp(message.c_str(), "PASS", 4 ) ) {
-			if ( message.size() <= 7 ) {
-				message = "-ERR Sorry, but can you tell me your deepest secret again? (Too few arguments)\r\n";
-			}
-			else if ( login == "" ) {
-				message = "-ERR It's nice, that you told me your secret, but who are you? (No user specified)\r\n";
-			}
-			else {
-				if ( message[4] == '\t' || message[4] == ' ' ) {
-					password = message.substr( 5, message.size() - 7 );
-					if ( pass == password ) {
-						message = "+OK Ohhh, it's you! (Password accepted)\r\n";
-					}
-					else {
-						message = "-ERR No! It's not you! (Wrong password)\r\n";
-					}
-				}
-			}
-			send_message = true;
+			message = process_pass( &message, &state, &pass );
 		}
-		else if ( !strncmp(message.c_str(), "STAT", 4 ) ) {}
-		else if ( !strncmp(message.c_str(), "LIST", 4 ) ) {}
-		else if ( !strncmp(message.c_str(), "RETR", 4 ) ) {}
-		else if ( !strncmp(message.c_str(), "DELE", 4 ) ) {}
-		else if ( !strncmp(message.c_str(), "RSET", 4 ) ) {}
+		else if ( !strncmp(message.c_str(), "STAT", 4 ) ) {
+			message = process_stat( &message, &state );
+		}
+		else if ( !strncmp(message.c_str(), "LIST", 4 ) ) {
+			message = process_list( &message, &state, directory );
+		}
+		else if ( !strncmp(message.c_str(), "RETR", 4 ) ) {
+			message = process_retr( &message, &state );
+		}
+		else if ( !strncmp(message.c_str(), "DELE", 4 ) ) {
+			message = process_dele( &message, &state );
+		}
+		else if ( !strncmp(message.c_str(), "RSET", 4 ) ) {
+			message = process_rset( &message, &state );
+		}
 		else if ( !strncmp(message.c_str(), "QUIT", 4 ) ) {
-			message = "+OK Farwell my fiend. I will never forget the time we spent together. (Closing connection)\r\n";
-			break;
+			message = process_quit( &message, &state );
 		}
-		else if ( !strncmp(message.c_str(), "TOP",  3 ) ) {}
+		else if ( !strncmp(message.c_str(), "TOP",  3 ) ) {
+			message = process_top( &message, &state );
+		}
 		else {
-			message      = "-ERR I don't know what you want. ( Unknown command )\r\n";
-			send_message = true;
+			message = "-ERR I don't know what you want. ( Unknown command )\r\n";
 		}
 		if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
 			cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
@@ -189,11 +146,6 @@ void talk_with_client( int sockcomm ) {
 			return;
 		}
 		message.clear();
-	}
-	if ( message.size() > 0 ) {
-		if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
-			cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
-		}
 	}
 	close( sockcomm );
 }
@@ -212,6 +164,29 @@ int main( int argc, char **argv) {
 	} catch ( invalid_argument& e ) {
 		cerr << e.what() << endl;
 		return ERR_ARGUMENT;
+	}
+
+	ifstream auth ( args.auth_file );
+	if ( auth.is_open() ) {
+		if ( getline( auth, user ) && user.find( "username: " ) != string::npos && user.size() > 10 ) {
+			if ( getline( auth, pass ) && pass.find( "password: " ) != string::npos && pass.size() > 10 ) {
+				user = user.substr( 10 );
+				pass = pass.substr( 10 );
+			}
+			else {
+				cerr << "ERROR: File in invalid format: " << args.auth_file << endl;
+				return ERR_FILE;
+			}
+		}
+		else {
+			cerr << "ERROR: File in invalid format: " << args.auth_file << endl;
+			return ERR_FILE;
+		}
+		auth.close();
+	}
+	else {
+		cerr << "ERROR: Unable to open file: " << args.auth_file << endl;
+		return ERR_FILE;
 	}
 
     sockfd = socket( AF_INET, SOCK_STREAM, 0 );
@@ -240,7 +215,7 @@ int main( int argc, char **argv) {
 		clilen = sizeof( cli_addr );
 		sockcomm = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
 		if ( sockcomm > 0 ) {
-			threads.push_back( new thread( talk_with_client, sockcomm ) );
+			threads.push_back( new thread( talk_with_client, sockcomm, args.directory.c_str() ) );
 			sockets.push_back( sockcomm );
 		}
 	}
