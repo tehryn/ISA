@@ -51,8 +51,15 @@ std::string process_quit(  const std::string * request, unsigned * state ) {
 	return response;
 }
 
-std::string process_list( const std::string * request, unsigned * state, const char * directory ) {
-	std::string response = "-ERR Command not implemented\r\n";
+std::string process_list( const std::string * request, unsigned * state, Mail_dir * directory ) {
+	std::string response = "";
+	if ( request->size() < 8 ) {
+		const std::vector<Mail_file> * files = directory->get_file_vector();
+		for ( const Mail_file & file: *files ) {
+			response += to_string( file.get_id() ) + " " + to_string( file.get_size() ) + "\r\n";
+		}
+		response = "+OK " + to_string( directory->get_num_of_msg() ) + " messages ("+ to_string( directory->get_dir_size() ) +" ocets)\r\n" + response + ".\r\n";
+	}
 	return response;
 }
 std::string process_retr( const std::string * request, unsigned * state ) {
@@ -73,6 +80,19 @@ std::string process_rset( const std::string * request, unsigned * state ) {
 }
 
 std::string process_top ( const std::string * request, unsigned * state ) {
+	std::string response = "-ERR Command not implemented\r\n";
+	return response;
+}
+
+std::string process_noop( const std::string * request, unsigned * state ) {
+	std::string response = "+OK\r\n";
+	return response;
+}
+std::string process_apop( const std::string * request, unsigned * state ) {
+	std::string response = "-ERR Command not implemented\r\n";
+	return response;
+}
+std::string process_uidl( const std::string * request, unsigned * state ) {
 	std::string response = "-ERR Command not implemented\r\n";
 	return response;
 }

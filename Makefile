@@ -11,4 +11,4 @@ process_requests.o: process_requests.cpp process_requests.hpp
 
 .PHONY: clean
 clean:
-	rm popser.o process_requests.o
+	rm popser.o process_requests.o Mail_dir.o

@@ -1,5 +1,6 @@
 #ifndef GLOBALS
 #define GLOBALS
+#include <string>
 
 enum {
 	ERR_ARGUMENT = 1,

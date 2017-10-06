@@ -9,33 +9,6 @@ vector<int>      sockets;
 string              user = "";
 string              pass = "";
 
-/**
- * Class that stores program setings
- */
-class Arguments {
-public:
-    /// Port number -p
-    int port            = -1;
-	/// Help argument -h
-	bool     help       = false;
-	/// Reset argument -r
-	bool     reset      = false;
-	/// Clear pass argument -c
-	bool   clear_pass   = false;
-	///  Auth file argument -a
-	string   auth_file  = "";
-	/// Directory argument -d
-	string   directory  = "";
-
-    /**
-     * Construct an Argument class. Throws invalid_argument exception on error.
-     * @param argc Number of arguments.
-     * @param argv Array of arguments.
-     */
-    Arguments(int argc, char **argv);
-	Arguments() {};
-};
-
 // ./popser [-h] [-a PATH] [-c] [-p PORT] [-d PATH] [-r]
 Arguments::Arguments( int argc, char **argv ) {
     vector<string> args( argv, argv + argc );
@@ -89,12 +62,14 @@ void quit( int sig ) {
 	exit(0);
 }
 
-void talk_with_client( int sockcomm, const char * directory ) {
+void talk_with_client( int sockcomm, Mail_dir * directory ) {
 	string message      = "+OK Hello, my name is Debbie and I am POP3 sever.\r\n";
+	string command      = "";
 	string login        = "";
 	string password     = "";
 	uint   state        = STATE_START;
 	char   request[256] = {0, };
+	locale loc;
 
 	if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
 		cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
@@ -110,32 +85,51 @@ void talk_with_client( int sockcomm, const char * directory ) {
 		if ( idx == string::npos ) {
 			continue;
 		}
-		if ( !strncmp(message.c_str(), "USER", 4 ) ) {
+		//command = toupper( message.substr(0, 4), loc );
+		if ( message.size() < 4 ) {
+			command = "ERROR";
+		}
+		else {
+			command = message;
+			for(int i = 0; i < 4; i++) {
+				command[i] = toupper( message[i] );
+			}
+		}
+		if ( !strncmp(command.c_str(), "USER", 4 ) ) {
 			message = process_user( &message, &state, &user );
 		}
-		else if ( !strncmp(message.c_str(), "PASS", 4 ) ) {
+		else if ( !strncmp(command.c_str(), "PASS", 4 ) ) {
 			message = process_pass( &message, &state, &pass );
 		}
-		else if ( !strncmp(message.c_str(), "STAT", 4 ) ) {
+		else if ( !strncmp(command.c_str(), "STAT", 4 ) ) {
 			message = process_stat( &message, &state );
 		}
-		else if ( !strncmp(message.c_str(), "LIST", 4 ) ) {
+		else if ( !strncmp(command.c_str(), "LIST", 4 ) ) {
 			message = process_list( &message, &state, directory );
 		}
-		else if ( !strncmp(message.c_str(), "RETR", 4 ) ) {
+		else if ( !strncmp(command.c_str(), "RETR", 4 ) ) {
 			message = process_retr( &message, &state );
 		}
-		else if ( !strncmp(message.c_str(), "DELE", 4 ) ) {
+		else if ( !strncmp(command.c_str(), "DELE", 4 ) ) {
 			message = process_dele( &message, &state );
 		}
-		else if ( !strncmp(message.c_str(), "RSET", 4 ) ) {
+		else if ( !strncmp(command.c_str(), "RSET", 4 ) ) {
 			message = process_rset( &message, &state );
 		}
-		else if ( !strncmp(message.c_str(), "QUIT", 4 ) ) {
+		else if ( !strncmp(command.c_str(), "QUIT", 4 ) ) {
 			message = process_quit( &message, &state );
 		}
-		else if ( !strncmp(message.c_str(), "TOP",  3 ) ) {
+		else if ( !strncmp(command.c_str(), "TOP",  3 ) ) {
 			message = process_top( &message, &state );
+		}
+		else if ( !strncmp(command.c_str(), "NOOP",  4 ) ) {
+			message = process_noop( &message, &state );
+		}
+		else if ( !strncmp(command.c_str(), "APOP",  3 ) ) {
+			message = process_apop( &message, &state );
+		}
+		else if ( !strncmp(command.c_str(), "UIDL",  3 ) ) {
+			message = process_uidl( &message, &state );
 		}
 		else {
 			message = "-ERR I don't know what you want. ( Unknown command )\r\n";
@@ -159,8 +153,10 @@ int main( int argc, char **argv) {
 	signal( SIGTERM, quit );
 	signal( SIGINT, quit );
 	Arguments args;
+	Mail_dir directory;
 	try {
-		args = Arguments( argc, argv );
+		args      = Arguments( argc, argv );
+		directory = Mail_dir( args.directory.c_str() );
 	} catch ( invalid_argument& e ) {
 		cerr << e.what() << endl;
 		return ERR_ARGUMENT;
@@ -215,7 +211,7 @@ int main( int argc, char **argv) {
 		clilen = sizeof( cli_addr );
 		sockcomm = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
 		if ( sockcomm > 0 ) {
-			threads.push_back( new thread( talk_with_client, sockcomm, args.directory.c_str() ) );
+			threads.push_back( new thread( talk_with_client, sockcomm, &directory ) );
 			sockets.push_back( sockcomm );
 		}
 	}
