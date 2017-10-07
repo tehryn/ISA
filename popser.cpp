@@ -85,14 +85,13 @@ void talk_with_client( int sockcomm, Mail_dir * directory ) {
 		if ( idx == string::npos ) {
 			continue;
 		}
-		//command = toupper( message.substr(0, 4), loc );
 		if ( message.size() < 4 ) {
 			command = "ERROR";
 		}
 		else {
 			command = message;
-			for(int i = 0; i < 4; i++) {
-				command[i] = toupper( message[i] );
+			for( int i = 0; i < 4; i++ ) {
+				command[i] = toupper( message[i], loc );
 			}
 		}
 		if ( !strncmp(command.c_str(), "USER", 4 ) ) {
@@ -108,7 +107,7 @@ void talk_with_client( int sockcomm, Mail_dir * directory ) {
 			message = process_list( &message, &state, directory );
 		}
 		else if ( !strncmp(command.c_str(), "RETR", 4 ) ) {
-			message = process_retr( &message, &state );
+			message = process_retr( &message, &state, directory );
 		}
 		else if ( !strncmp(command.c_str(), "DELE", 4 ) ) {
 			message = process_dele( &message, &state );
@@ -125,15 +124,18 @@ void talk_with_client( int sockcomm, Mail_dir * directory ) {
 		else if ( !strncmp(command.c_str(), "NOOP",  4 ) ) {
 			message = process_noop( &message, &state );
 		}
-		else if ( !strncmp(command.c_str(), "APOP",  3 ) ) {
+		else if ( !strncmp(command.c_str(), "APOP",  4 ) ) {
 			message = process_apop( &message, &state );
 		}
-		else if ( !strncmp(command.c_str(), "UIDL",  3 ) ) {
+		else if ( !strncmp(command.c_str(), "UIDL",  4 ) ) {
 			message = process_uidl( &message, &state );
 		}
 		else {
-			message = "-ERR I don't know what you want. ( Unknown command )\r\n";
+			cerr << message << endl;
+			cerr << command << endl;
+			message = "-ERR I don't know what you want. ( Unknown command )";
 		}
+		message += "\r\n";
 		if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
 			cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
 			close( sockcomm );
