@@ -24,13 +24,13 @@
 class Arguments {
 public:
     /// Port number -p
-    int port            = -1;
+    int  port       = -1;
 	/// Help argument -h
-	bool     help       = false;
+	bool help       = false;
 	/// Reset argument -r
-	bool     reset      = false;
+	bool reset      = false;
 	/// Clear pass argument -c
-	bool   clear_pass   = false;
+	bool clear_pass = false;
 	///  Auth file argument -a
 	std::string   auth_file  = "";
 	/// Directory argument -d

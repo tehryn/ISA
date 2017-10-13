@@ -11,6 +11,7 @@ class Mail_file {
 private:
 	size_t size;
 	std::string filename;
+	std::string file_info;
 	int id;
 	bool deleted;
 	bool read;
@@ -18,11 +19,11 @@ private:
 	bool content_avaible = false;
 public:
 	Mail_file( const char * filename, int id, size_t size ){
-		this->filename = filename;
-		this->deleted  = false;
-		this->read     = false;
-		this->size     = size;
-		this->id       = id;
+		this->filename  = filename;
+		this->deleted   = false;
+		this->read      = false;
+		this->size      = size;
+		this->id        = id;
 	}
 	size_t get_size() const {
 		return size;
@@ -61,7 +62,14 @@ public:
 		else {
 			content = "";
 			content_avaible = true;
+			return false;
 		}
+	}
+	void del() {
+		deleted = true;
+	}
+	void undel() {
+		deleted = false;
 	}
 };
 #endif

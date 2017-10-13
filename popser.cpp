@@ -6,8 +6,6 @@ using namespace std;
 
 vector<thread *> threads;
 vector<int>      sockets;
-string              user = "";
-string              pass = "";
 
 // ./popser [-h] [-a PATH] [-c] [-p PORT] [-d PATH] [-r]
 Arguments::Arguments( int argc, char **argv ) {
@@ -19,7 +17,7 @@ Arguments::Arguments( int argc, char **argv ) {
 		else if ( args[i] == "-c" && this->clear_pass == false ) {
 			this->clear_pass = true;
 		}
-		else if ( args[i] == "-h" && this->help == false && argc == 2 ) {
+		else if ( args[i] == "-h" && this->help == false ) {
 			this->help = true;
 		}
         else if ( args[i] == "-p" && this->port == -1 and ( i+1 ) < argc ) {
@@ -49,6 +47,17 @@ Arguments::Arguments( int argc, char **argv ) {
 	}
 }
 
+void help() {
+	cout << "./popser [-h] [-a PATH] [-c] [-p PORT] [-d PATH] [-r]" << endl;
+	cout << "-h Optional parametr, prints help" << endl;
+	cout << "-a Path to file with user information (login and password)" << endl;
+	cout << "-c The password will not be encrypted on the network" << endl;
+	cout << "-p Port number" << endl;
+	cout << "-d Path to Maildir" << endl;
+	cout << "-r Server will clean after himself - everything will be undone" << endl;
+
+}
+
 void quit( int sig ) {
 	cerr << "Closing connections." << endl;
 	for( thread * & t: threads ) {
@@ -62,7 +71,7 @@ void quit( int sig ) {
 	exit(0);
 }
 
-void talk_with_client( int sockcomm, Mail_dir * directory ) {
+void talk_with_client( int sockcomm, Mail_dir * directory, string user, string pass ) {
 	string message      = "+OK Hello, my name is Debbie and I am POP3 sever.\r\n";
 	string command      = "";
 	string login        = "";
@@ -101,7 +110,7 @@ void talk_with_client( int sockcomm, Mail_dir * directory ) {
 			message = process_pass( &message, &state, &pass );
 		}
 		else if ( !strncmp(command.c_str(), "STAT", 4 ) ) {
-			message = process_stat( &message, &state );
+			message = process_stat( &message, &state, directory );
 		}
 		else if ( !strncmp(command.c_str(), "LIST", 4 ) ) {
 			message = process_list( &message, &state, directory );
@@ -110,10 +119,10 @@ void talk_with_client( int sockcomm, Mail_dir * directory ) {
 			message = process_retr( &message, &state, directory );
 		}
 		else if ( !strncmp(command.c_str(), "DELE", 4 ) ) {
-			message = process_dele( &message, &state );
+			message = process_dele( &message, &state, directory );
 		}
 		else if ( !strncmp(command.c_str(), "RSET", 4 ) ) {
-			message = process_rset( &message, &state );
+			message = process_rset( &message, &state, directory );
 		}
 		else if ( !strncmp(command.c_str(), "QUIT", 4 ) ) {
 			message = process_quit( &message, &state );
@@ -131,8 +140,6 @@ void talk_with_client( int sockcomm, Mail_dir * directory ) {
 			message = process_uidl( &message, &state );
 		}
 		else {
-			cerr << message << endl;
-			cerr << command << endl;
 			message = "-ERR I don't know what you want. ( Unknown command )";
 		}
 		message += "\r\n";
@@ -152,6 +159,7 @@ int main( int argc, char **argv) {
 		socklen_t clilen;        // Size of clien's addres
 		struct sockaddr_in serv_addr = {},
 						   cli_addr  = {};
+		string user, pass;
 	signal( SIGTERM, quit );
 	signal( SIGINT, quit );
 	Arguments args;
@@ -162,6 +170,11 @@ int main( int argc, char **argv) {
 	} catch ( invalid_argument& e ) {
 		cerr << e.what() << endl;
 		return ERR_ARGUMENT;
+	}
+
+	if ( args.help ) {
+		help();
+		return 0;
 	}
 
 	ifstream auth ( args.auth_file );
@@ -213,7 +226,7 @@ int main( int argc, char **argv) {
 		clilen = sizeof( cli_addr );
 		sockcomm = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
 		if ( sockcomm > 0 ) {
-			threads.push_back( new thread( talk_with_client, sockcomm, &directory ) );
+			threads.push_back( new thread( talk_with_client, sockcomm, &directory, user, pass ) );
 			sockets.push_back( sockcomm );
 		}
 	}
