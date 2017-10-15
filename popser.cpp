@@ -128,7 +128,7 @@ void talk_with_client( int sockcomm, Mail_dir * directory, string user, string p
 			message = process_quit( &message, &state );
 		}
 		else if ( !strncmp(command.c_str(), "TOP",  3 ) ) {
-			message = process_top( &message, &state );
+			message = process_top( &message, &state, directory );
 		}
 		else if ( !strncmp(command.c_str(), "NOOP",  4 ) ) {
 			message = process_noop( &message, &state );

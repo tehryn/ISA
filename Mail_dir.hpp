@@ -53,6 +53,7 @@ public:
 					}
 				}
 				else {
+					DEBUG_LINE( ep->d_name );
 					throw std::invalid_argument( "ERROR: Invalid file in directory." );
 				}
 			}

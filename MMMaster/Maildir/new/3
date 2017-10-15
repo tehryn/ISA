@@ -3,19 +3,13 @@
 std::vector<std::string> get_params( uint cmd_len, const std::string * request, bool parse=true ) {
 	//TODO kontrola mezery za prikazem
 	// pass_hesloRN
-	std::string params = "";
-	if ( request->size() != cmd_len + 2 ) {
-		params = request->substr(cmd_len+1, request->size() - cmd_len - 3);
-	}
+	std::string params = request->substr(cmd_len+1, request->size() - cmd_len - 3);
 	std::vector<std::string> ret_vector;
 	if ( !parse ) {
-		DEBUG_LINE( "get_params: parse=false" );
 		ret_vector.push_back( params );
 	}
 	else {
-		DEBUG_LINE( "get_params: parse=true" );
 		std::string param = "";
-		DEBUG_VECTOR( params );
 		for ( size_t i = 0; i < params.size(); i++ ) {
 			if ( params[i] == ' ' ) {
 				if ( param.size() ) {
@@ -27,8 +21,6 @@ std::vector<std::string> get_params( uint cmd_len, const std::string * request, 
 				}
 			}
 			else {
-				DEBUG_INLINE( "Pushing: " );
-				DEBUG_LINE( (int) params[i] );
 				param += params[i];
 			}
 		}
@@ -36,7 +28,7 @@ std::vector<std::string> get_params( uint cmd_len, const std::string * request, 
 			ret_vector.push_back( param );
 		}
 	}
-	DEBUG_VECTOR( ret_vector );
+	DEBUG_VECTOR(ret_vector);
 	return ret_vector;
 }
 
@@ -312,3 +304,4 @@ std::string process_uidl( const std::string * request, unsigned * state ) {
 	std::string response = "-ERR Command not implemented";
 	return response;
 }
+

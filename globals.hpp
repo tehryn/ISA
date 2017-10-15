@@ -6,7 +6,7 @@
 #ifdef DEBUG
 #define DEBUG_LINE(x)     ( std::cout << ( x ) << std::endl)
 #define DEBUG_INLINE(x)   ( std::cout << ( x ) )
-#define DEBUG_VECTOR(vec) for( auto x:ret_vector )std::cout << "VEC_ITEM: " << ( x ) << std::endl;
+#define DEBUG_VECTOR(vec) ( std::cout << "VEC_SIZE: " << vec.size() << std::endl ); for( auto x:vec )std::cout << "VEC_ITEM: " << ( x ) << std::endl;
 #else
 #define DEBUG_LINE(x) ;
 #define DEBUG_INLINE(x) ;
