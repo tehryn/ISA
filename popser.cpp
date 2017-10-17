@@ -72,13 +72,19 @@ void quit( int sig ) {
 }
 
 void talk_with_client( int sockcomm, Mail_dir * directory, string user, string pass ) {
-	string message      = "+OK Hello, my name is Debbie and I am POP3 sever.\r\n";
+	string message      = "+OK Hello, my name is Debbie and I am POP3 sever ";
 	string command      = "";
 	string login        = "";
 	string password     = "";
 	uint   state        = STATE_START;
 	char   request[256] = {0, };
+	char   hostname[64] = {0, };
+	pid_t  pid        = getpid();
 	locale loc;
+	unsigned long epoch = time( nullptr );
+
+	gethostname( hostname, 63 );
+	message += "<" + to_string( pid ) + "." + to_string( epoch ) + "@" + hostname + ">\r\n";
 
 	if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
 		cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
@@ -176,7 +182,6 @@ int main( int argc, char **argv) {
 		help();
 		return 0;
 	}
-
 	ifstream auth ( args.auth_file );
 	if ( auth.is_open() ) {
 		if ( getline( auth, user ) && user.find( "username: " ) != string::npos && user.size() > 10 ) {

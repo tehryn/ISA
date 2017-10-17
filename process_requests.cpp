@@ -27,8 +27,8 @@ std::vector<std::string> get_params( uint cmd_len, const std::string * request, 
 				}
 			}
 			else {
-				DEBUG_INLINE( "Pushing: " );
-				DEBUG_LINE( (int) params[i] );
+//				DEBUG_INLINE( "Pushing: " );
+//				DEBUG_LINE( (int) params[i] );
 				param += params[i];
 			}
 		}
@@ -254,8 +254,8 @@ std::string process_rset( const std::string * request, unsigned * state, Mail_di
 }
 
 std::string process_top ( const std::string * request, unsigned * state, Mail_dir * directory ) {
-	std::string response = "-ERR Command not implemented";
-	std::vector<std::string> params = get_params( 4, request );
+	std::string response = "";
+	std::vector<std::string> params = get_params( 3, request );
 	if ( *state == STATE_AUTHORIZED ) {
 		if ( params.size() < 2 ) {
 			response = "-ERR Sorry, I just don't know what do you want from me. (Too few arguments)";
@@ -301,11 +301,27 @@ std::string process_top ( const std::string * request, unsigned * state, Mail_di
 }
 
 std::string process_noop( const std::string * request, unsigned * state ) {
-	std::string response = "+OK";
+	std::string response = "+OK It's a nice weather today, isn't it?";
 	return response;
 }
-std::string process_apop( const std::string * request, unsigned * state ) {
-	std::string response = "-ERR Command not implemented";
+std::string process_apop( const std::string * request, unsigned * state, std::string password ) {
+	std::string response = "";
+	std::vector<std::string> params = get_params( 4, request );
+	if ( params.size() == 0 ) {
+		response = "-ERR This is not enought. (Too few arguments)";
+	}
+	else if ( params.size() == 1 ) {
+		if ( password == params[0] ) {
+			response = "+OK Here you go. (Password accepted)";
+		}
+		else {
+			response = "-ERR My maker told me to not speak with strangers. (Invalid password)";
+		}
+	}
+	else {
+		response = "-ERR This is too much. (Too many arguments)";
+
+	}
 	return response;
 }
 std::string process_uidl( const std::string * request, unsigned * state ) {
