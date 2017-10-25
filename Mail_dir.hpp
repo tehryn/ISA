@@ -15,6 +15,7 @@ private:
 	std::vector<Mail_file> files;
 	size_t total_size     = 0;
 	std::string dir_info  = "";
+	std::string dir_uids  = "";
 	std::string directory = "";
 
 	long int get_true_index ( size_t id ) const {
@@ -174,6 +175,28 @@ public:
 			}
 		}
 		dir_info = "";
+	}
+
+	const std::string * get_file_uid( size_t id ) const {
+		long int idx = get_true_index( id );
+		if ( idx >= 0 ) {
+			return files[idx].get_uid();
+		}
+		else {
+			return nullptr;
+		}
+	}
+
+	const std::string * get_files_uid() {
+		if ( dir_uids.size() == 0 ) {
+			size_t id = 1;
+			for( const Mail_file & file: files ) {
+				if ( !file.is_deleted() ) {
+					dir_uids = std::to_string( id++ ) + " " + *( file.get_uid() ) + "\r\n";
+				}
+			}
+		}
+		return &dir_uids;
 	}
 };
 #endif

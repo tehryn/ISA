@@ -304,18 +304,24 @@ std::string process_noop( const std::string * request, unsigned * state ) {
 	std::string response = "+OK It's a nice weather today, isn't it?";
 	return response;
 }
-std::string process_apop( const std::string * request, unsigned * state, std::string password ) {
+std::string process_apop( const std::string * request, unsigned * state, const std::string * user,const std::string * password ) {
 	std::string response = "";
 	std::vector<std::string> params = get_params( 4, request );
-	if ( params.size() == 0 ) {
+	if ( params.size() < 2 ) {
 		response = "-ERR This is not enought. (Too few arguments)";
 	}
-	else if ( params.size() == 1 ) {
-		if ( password == params[0] ) {
-			response = "+OK Here you go. (Password accepted)";
+	else if ( params.size() == 2 ) {
+		if ( *user == params[0] ) {
+			if ( *password == params[1] ) {
+				response = "+OK Here you go. (User and password accepted)";
+				*state = STATE_AUTHORIZED;
+			}
+			else {
+				response = "-ERR You are a wolf in sheep's clothing! (Invalid password)";
+			}
 		}
 		else {
-			response = "-ERR My maker told me to not speak with strangers. (Invalid password)";
+			response = "-ERR My maker told me to not speak with strangers. (Unknow user)";
 		}
 	}
 	else {
@@ -324,7 +330,34 @@ std::string process_apop( const std::string * request, unsigned * state, std::st
 	}
 	return response;
 }
-std::string process_uidl( const std::string * request, unsigned * state ) {
-	std::string response = "-ERR Command not implemented";
+std::string process_uidl( const std::string * request, unsigned * state, Mail_dir * directory ) {
+	std::string response = "";
+	std::vector<std::string> params = get_params( 4, request );
+	if ( *state == STATE_AUTHORIZED ) {
+		if ( params.size() == 0 ) {
+			response = "+OK Is this what you asked for?\r\n" + *( directory->get_files_uid() ) + ".";
+		}
+		else if ( params.size() == 1 ) {
+			int id = 0;
+			if ( is_uint( params[0].c_str() ) ) {
+				id = atoi( params[0].c_str() );
+			}
+			if ( id ) {
+				const std::string * uid = directory->get_file_uid( id );
+				if ( uid == nullptr ) {
+					response = "-ERR I really tried my best, but I can't find your message. (No such message)";
+				}
+				else {
+					response = "+OK I did it! I am sooo awesome! (Message deleted)";
+				}
+			}
+			else {
+				response = "-ERR Did you know that id off message is always number greater than 0? (No such message)";
+			}
+		}
+	}
+	else {
+		response = "-ERR Keep your nasty fingers away from me stranger! (You must authorize yourself before you use this command)";
+	}
 	return response;
 }

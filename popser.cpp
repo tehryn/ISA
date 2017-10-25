@@ -55,7 +55,6 @@ void help() {
 	cout << "-p Port number" << endl;
 	cout << "-d Path to Maildir" << endl;
 	cout << "-r Server will clean after himself - everything will be undone" << endl;
-
 }
 
 void quit( int sig ) {
@@ -71,20 +70,24 @@ void quit( int sig ) {
 	exit(0);
 }
 
-void talk_with_client( int sockcomm, Mail_dir * directory, string user, string pass ) {
+void talk_with_client( int sockcomm, Mail_dir * directory, string user, string pass, bool use_md5 ) {
 	string message      = "+OK Hello, my name is Debbie and I am POP3 sever ";
 	string command      = "";
 	string login        = "";
-	string password     = "";
+	string md5_pass     = "";
 	uint   state        = STATE_START;
 	char   request[256] = {0, };
 	char   hostname[64] = {0, };
-	pid_t  pid        = getpid();
+	pid_t  pid          = getpid();
 	locale loc;
 	unsigned long epoch = time( nullptr );
 
 	gethostname( hostname, 63 );
-	message += "<" + to_string( pid ) + "." + to_string( epoch ) + "@" + hostname + ">\r\n";
+	md5_pass = "<" + to_string( pid ) + "." + to_string( epoch ) + "@" + hostname + ">";
+	message += md5_pass + "\r\n";
+	md5_pass = md5( md5_pass + pass );
+	DEBUG_INLINE( "APOP Password: " );
+	DEBUG_LINE( md5_pass );
 
 	if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
 		cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
@@ -110,10 +113,20 @@ void talk_with_client( int sockcomm, Mail_dir * directory, string user, string p
 			}
 		}
 		if ( !strncmp(command.c_str(), "USER", 4 ) ) {
-			message = process_user( &message, &state, &user );
+			if ( !use_md5 ) {
+				message = process_user( &message, &state, &user );
+			}
+			else {
+				message = "-ERR please use APOP command to log in. (Command not supported)";
+			}
 		}
 		else if ( !strncmp(command.c_str(), "PASS", 4 ) ) {
-			message = process_pass( &message, &state, &pass );
+			if ( !use_md5 ) {
+				message = process_pass( &message, &state, &pass );
+			}
+			else {
+				message = "-ERR please use APOP command to log in. (Command not supported)";
+			}
 		}
 		else if ( !strncmp(command.c_str(), "STAT", 4 ) ) {
 			message = process_stat( &message, &state, directory );
@@ -139,14 +152,19 @@ void talk_with_client( int sockcomm, Mail_dir * directory, string user, string p
 		else if ( !strncmp(command.c_str(), "NOOP",  4 ) ) {
 			message = process_noop( &message, &state );
 		}
-		else if ( !strncmp(command.c_str(), "APOP",  4 ) ) {
-			message = process_apop( &message, &state );
+		else if (  !strncmp(command.c_str(), "APOP",  4 ) ) {
+			if ( use_md5 ) {
+				message = process_apop( &message, &state, &user, &md5_pass);
+			}
+			else {
+				message = "-ERR Please use commands USER and PASS to login. (Command not supported)";
+			}
 		}
 		else if ( !strncmp(command.c_str(), "UIDL",  4 ) ) {
-			message = process_uidl( &message, &state );
+			message = process_uidl( &message, &state, directory );
 		}
 		else {
-			message = "-ERR I don't know what you want. ( Unknown command )";
+			message = "-ERR I don't know what you want. (Unknown command)";
 		}
 		message += "\r\n";
 		if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
@@ -231,7 +249,7 @@ int main( int argc, char **argv) {
 		clilen = sizeof( cli_addr );
 		sockcomm = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
 		if ( sockcomm > 0 ) {
-			threads.push_back( new thread( talk_with_client, sockcomm, &directory, user, pass ) );
+			threads.push_back( new thread( talk_with_client, sockcomm, &directory, user, pass, !args.clear_pass ) );
 			sockets.push_back( sockcomm );
 		}
 	}

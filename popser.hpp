@@ -17,6 +17,7 @@
 #include "process_requests.hpp"
 #include "globals.hpp"
 #include "Mail_dir.hpp"
+#include "md5.hpp"
 
 /**
  * Class that stores program setings

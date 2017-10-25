@@ -13,6 +13,7 @@ private:
 	std::string file_info = "";
 	std::string full_path = "";
 	std::string content   = "";
+	std::string unique_id = "BlaBlaBla";
 	int id = 0;
 	size_t size = 0;
 	bool content_avaible = false;
@@ -72,6 +73,9 @@ public:
 	}
 	void undel() {
 		deleted = false;
+	}
+	const std::string * get_uid() const {
+		return &unique_id;
 	}
 };
 #endif
