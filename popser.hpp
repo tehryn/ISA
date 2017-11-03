@@ -24,8 +24,8 @@
  */
 class Arguments {
 public:
-    /// Port number -p
-    int  port       = -1;
+	/// Port number -p
+	int  port       = -1;
 	/// Help argument -h
 	bool help       = false;
 	/// Reset argument -r
@@ -37,13 +37,15 @@ public:
 	/// Directory argument -d
 	std::string   directory  = "";
 
-    /**
-     * Construct an Argument class. Throws invalid_argument exception on error.
-     * @param argc Number of arguments.
-     * @param argv Array of arguments.
-     */
-    Arguments(int argc, char **argv);
+	/**
+	 * Construct an Argument class. Throws invalid_argument exception on error.
+	 * @param argc Number of arguments.
+	 * @param argv Array of arguments.
+	 */
+	Arguments(int argc, char **argv);
 	Arguments() {};
 };
 
+bool move_files( std::string directory );
+void reverse_all();
 #endif

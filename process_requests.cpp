@@ -9,13 +9,10 @@ std::vector<std::string> get_params( uint cmd_len, const std::string * request, 
 	}
 	std::vector<std::string> ret_vector;
 	if ( !parse ) {
-		DEBUG_LINE( "get_params: parse=false" );
 		ret_vector.push_back( params );
 	}
 	else {
-		DEBUG_LINE( "get_params: parse=true" );
 		std::string param = "";
-		DEBUG_VECTOR( params );
 		for ( size_t i = 0; i < params.size(); i++ ) {
 			if ( params[i] == ' ' ) {
 				if ( param.size() ) {
@@ -27,8 +24,6 @@ std::vector<std::string> get_params( uint cmd_len, const std::string * request, 
 				}
 			}
 			else {
-//				DEBUG_INLINE( "Pushing: " );
-//				DEBUG_LINE( (int) params[i] );
 				param += params[i];
 			}
 		}
@@ -36,7 +31,6 @@ std::vector<std::string> get_params( uint cmd_len, const std::string * request, 
 			ret_vector.push_back( param );
 		}
 	}
-	DEBUG_VECTOR( ret_vector );
 	return ret_vector;
 }
 
@@ -189,6 +183,7 @@ std::string process_retr( const std::string * request, unsigned * state, Mail_di
 	}
 	return response;
 }
+
 std::string process_dele( const std::string * request, unsigned * state, Mail_dir * directory ) {
 	std::string response = "";
 	std::vector<std::string> params = get_params( 4, request );
@@ -219,6 +214,7 @@ std::string process_dele( const std::string * request, unsigned * state, Mail_di
 	}
 	return response;
 }
+
 std::string process_stat( const std::string * request, unsigned * state, Mail_dir * directory ) {
 	std::string response = "";
 	std::vector<std::string> params = get_params( 4, request );
@@ -235,6 +231,7 @@ std::string process_stat( const std::string * request, unsigned * state, Mail_di
 	}
 	return response;
 }
+
 std::string process_rset( const std::string * request, unsigned * state, Mail_dir * directory ) {
 	std::string response = "";
 	std::vector<std::string> params = get_params( 4, request );
@@ -272,7 +269,10 @@ std::string process_top ( const std::string * request, unsigned * state, Mail_di
 			if ( ( id > 0 ) && ( lines > 0 ) ) {
 				if ( directory->file_exists( id ) ) {
 					const std::string * str = directory->get_file_content( id );
-					size_t idx = 0;
+					size_t idx = str->find( "\r\n\r\n", 0 );
+					if (idx == std::string::npos) {
+						idx = 0;
+					}
 					for( int i = 0; i < lines; i++ ) {
 						idx = str->find( '\n', idx );
 						if ( idx == std::string::npos ) {
@@ -304,6 +304,7 @@ std::string process_noop( const std::string * request, unsigned * state ) {
 	std::string response = "+OK It's a nice weather today, isn't it?";
 	return response;
 }
+
 std::string process_apop( const std::string * request, unsigned * state, const std::string * user,const std::string * password ) {
 	std::string response = "";
 	std::vector<std::string> params = get_params( 4, request );
@@ -330,6 +331,7 @@ std::string process_apop( const std::string * request, unsigned * state, const s
 	}
 	return response;
 }
+
 std::string process_uidl( const std::string * request, unsigned * state, Mail_dir * directory ) {
 	std::string response = "";
 	std::vector<std::string> params = get_params( 4, request );
@@ -348,7 +350,7 @@ std::string process_uidl( const std::string * request, unsigned * state, Mail_di
 					response = "-ERR I really tried my best, but I can't find your message. (No such message)";
 				}
 				else {
-					response = "+OK I did it! I am sooo awesome! (Message deleted)";
+					response = "+OK " + std::to_string( directory->get_file_id( id ) ) + " " + *uid;
 				}
 			}
 			else {

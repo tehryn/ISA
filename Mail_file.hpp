@@ -6,27 +6,25 @@
 #include <dirent.h>
 #include <stdexcept>
 #include <fstream>
+#include "md5.hpp"
 
 class Mail_file {
 private:
 	std::string filename  = "";
 	std::string file_info = "";
-	std::string full_path = "";
 	std::string content   = "";
-	std::string unique_id = "BlaBlaBla";
-	int id = 0;
+	std::string unique_id = "";
 	size_t size = 0;
 	bool content_avaible = false;
 	bool deleted = false;
 	bool read    = false;
 public:
-	Mail_file( const char * filename, const std::string * full_path, int id, size_t size ){
-		this->full_path = *full_path;
-		this->filename  = filename;
+	Mail_file( const std::string * filename, size_t size ) {
+		this->unique_id = md5( *filename );
+		this->filename  = *filename;
 		this->deleted   = false;
 		this->read      = false;
 		this->size      = size;
-		this->id        = id;
 	}
 	size_t get_size() const {
 		return size;
@@ -40,9 +38,6 @@ public:
 	const std::string * get_name() const {
 		return &filename;
 	}
-	int get_id () const {
-		return id;
-	}
 	const std::string * get_content() const {
 		return &content;
 	}
@@ -50,7 +45,7 @@ public:
 		return content_avaible;
 	}
 	bool load_content() {
-		std::ifstream file( this->full_path );
+		std::ifstream file( this->filename );
 		if ( this->size > 0 ) {
 			if ( file.is_open() ) {
 				content = std::string( std::istreambuf_iterator<char>( file ), std::istreambuf_iterator<char>() );
