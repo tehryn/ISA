@@ -7,7 +7,8 @@ using namespace std;
 
 vector<thread *> threads;
 vector<int>      sockets;
-bool locked = false;
+mutex mail_dir_lock;
+long unsigned thread_lock_id;
 
 // ./popser [-h] [-a PATH] [-c] [-p PORT] [-d PATH] [-r]
 Arguments::Arguments( int argc, char **argv ) {
@@ -77,6 +78,8 @@ void reverse_all() {
 		swap( start_idx, next_idx );
 		start_idx += 15;
 	}
+	file.close();
+	remove( JOURNAL_NAME );
 }
 
 bool move_files( const std::string * directory ) {
@@ -111,6 +114,10 @@ bool move_files( const std::string * directory ) {
 			}
 			string old_file = cur_dir + filename; // file that will be in Maildir/new
 			if ( !rename( old_file.c_str(), new_file.c_str() ) ) {
+				DEBUG_INLINE( "RENAMED: " );
+				DEBUG_INLINE( old_file );
+				DEBUG_INLINE( " >>> " );
+				DEBUG_LINE( new_file );
 				fs << old_file << "<//SEPARATOR//>" << new_file << "<//SEPARATOR//>";
 			}
 			else {
@@ -149,7 +156,16 @@ void quit( int sig ) {
 	exit(0);
 }
 
-void talk_with_client( int sockcomm, Mail_dir * directory, string user, string pass, bool use_md5 ) {
+bool access_maildir( Mail_dir * directory, const string * username, const string * directory_path ) {
+	std::string user_path = *directory_path + ( ( ( *directory_path )[ directory_path->size() - 1 ] == '/' ) ?( *username + "/Maildir/" ) : ( "/" + *username + "/Maildir/" ) );
+	if ( move_files( &user_path ) ) {
+		return true;
+	}
+	*directory = Mail_dir( user_path.c_str() );
+	return !directory->is_valid();
+}
+
+void talk_with_client( int sockcomm, const string * directory_path, const string * user, const string * pass, bool use_md5 ) {
 	string message      = "+OK Hello, my name is Debbie and I am POP3 sever ";
 	string command      = "";
 	string login        = "";
@@ -160,13 +176,14 @@ void talk_with_client( int sockcomm, Mail_dir * directory, string user, string p
 	pid_t  pid          = getpid();
 	locale loc;
 	unsigned long epoch = time( nullptr );
+	Mail_dir directory;
 
 	gethostname( hostname, 63 );
 	md5_pass = "<" + to_string( pid ) + "." + to_string( epoch ) + "@" + hostname + ">";
 	message += md5_pass + "\r\n";
-	md5_pass = md5( md5_pass + pass );
+	md5_pass = md5( md5_pass + *pass );
 	DEBUG_INLINE( "APOP " );
-	DEBUG_INLINE( user );
+	DEBUG_INLINE( *user );
 	DEBUG_INLINE( " " );
 	DEBUG_LINE( md5_pass );
 
@@ -195,7 +212,7 @@ void talk_with_client( int sockcomm, Mail_dir * directory, string user, string p
 		}
 		if ( !strncmp(command.c_str(), "USER", 4 ) ) {
 			if ( !use_md5 ) {
-				message = process_user( &message, &state, &user );
+				message = process_user( &message, &state, user );
 			}
 			else {
 				message = "-ERR please use APOP command to log in. (Command not supported)";
@@ -203,46 +220,66 @@ void talk_with_client( int sockcomm, Mail_dir * directory, string user, string p
 		}
 		else if ( !strncmp(command.c_str(), "PASS", 4 ) ) {
 			if ( !use_md5 ) {
-				message = process_pass( &message, &state, &pass );
+				if ( mail_dir_lock.try_lock() ) {
+					thread_lock_id = pthread_self();
+					message = process_pass( &message, &state, pass );
+					if ( state == STATE_AUTHORIZED && access_maildir( &directory, user, directory_path ) ) {
+						message = "-ERR Cannot access Maildir";
+						mail_dir_lock.unlock();
+					}
+				}
+				else {
+					message = "-ERR Maildir is currently beeing used.";
+				}
 			}
 			else {
 				message = "-ERR please use APOP command to log in. (Command not supported)";
 			}
 		}
 		else if ( !strncmp(command.c_str(), "STAT", 4 ) ) {
-			message = process_stat( &message, &state, directory );
+			message = process_stat( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "LIST", 4 ) ) {
-			message = process_list( &message, &state, directory );
+			message = process_list( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "RETR", 4 ) ) {
-			message = process_retr( &message, &state, directory );
+			message = process_retr( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "DELE", 4 ) ) {
-			message = process_dele( &message, &state, directory );
+			message = process_dele( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "RSET", 4 ) ) {
-			message = process_rset( &message, &state, directory );
+			message = process_rset( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "QUIT", 4 ) ) {
 			message = process_quit( &message, &state );
 		}
 		else if ( !strncmp(command.c_str(), "TOP",  3 ) ) {
-			message = process_top( &message, &state, directory );
+			message = process_top( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "NOOP",  4 ) ) {
 			message = process_noop( &message, &state );
 		}
 		else if (  !strncmp(command.c_str(), "APOP",  4 ) ) {
 			if ( use_md5 ) {
-				message = process_apop( &message, &state, &user, &md5_pass);
+				if ( mail_dir_lock.try_lock() ) {
+					thread_lock_id = pthread_self();
+					message = process_apop( &message, &state, user, &md5_pass);
+					if ( state == STATE_AUTHORIZED && access_maildir( &directory, user, directory_path ) ) {
+						message = "-ERR Cannot access Maildir";
+						mail_dir_lock.unlock();
+					}
+				}
+				else {
+					message = "-ERR Maildir is currently beeing used.";
+				}
 			}
 			else {
 				message = "-ERR Please use commands USER and PASS to login. (Command not supported)";
 			}
 		}
 		else if ( !strncmp(command.c_str(), "UIDL",  4 ) ) {
-			message = process_uidl( &message, &state, directory );
+			message = process_uidl( &message, &state, &directory );
 		}
 		else {
 			message = "-ERR I don't know what you want. (Unknown command)";
@@ -254,6 +291,9 @@ void talk_with_client( int sockcomm, Mail_dir * directory, string user, string p
 			return;
 		}
 		message.clear();
+	}
+	if ( mail_dir_lock.try_lock() || pthread_equal( pthread_self(), thread_lock_id ) ) {
+		mail_dir_lock.unlock();
 	}
 	close( sockcomm );
 }
@@ -268,7 +308,6 @@ int main( int argc, char **argv) {
 	signal( SIGTERM, quit );
 	signal( SIGINT, quit );
 	Arguments args;
-	Mail_dir directory;
 	try {
 		args = Arguments( argc, argv );
 	} catch ( invalid_argument& e ) {
@@ -284,16 +323,6 @@ int main( int argc, char **argv) {
 	if ( args.reset ) {
 		reverse_all();
 		return 0;
-	}
-
-	try {
-		if ( move_files( &args.directory ) ) {
-			throw invalid_argument( "ERROR: Maildir probably in wrong format" );
-		}
-		directory = Mail_dir( args.directory.c_str() );
-	} catch ( invalid_argument& e ) {
-		cerr << e.what() << endl;
-		return ERR_ARGUMENT;
 	}
 
 	ifstream auth ( args.auth_file );
@@ -345,17 +374,8 @@ int main( int argc, char **argv) {
 		clilen = sizeof( cli_addr );
 		sockcomm = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
 		if ( sockcomm > 0 ) {
-			if ( locked ) {
-				const char * message = "-ERR Maildir is currently being used by another user.\r\n";
-				if ( send( sockcomm, message, strlen(message), 0 ) < 0 ) {
-					cerr << "ERROR: Unable to send message" << endl;
-				}
-				close( sockcomm );
-			}
-			else {
-				threads.push_back( new thread( talk_with_client, sockcomm, &directory, user, pass, !args.clear_pass ) );
-				sockets.push_back( sockcomm );
-			}
+			threads.push_back( new thread( talk_with_client, sockcomm, &args.directory, &user, &pass, !args.clear_pass ) );
+			sockets.push_back( sockcomm );
 		}
 	}
 	return 0;

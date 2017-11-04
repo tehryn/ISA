@@ -14,6 +14,8 @@ private:
 	std::string dir_info  = "";
 	std::string dir_uids  = "";
 	std::string directory = "";
+	std::string user      = "";
+	bool valide           = true;
 
 	long int get_true_index ( size_t id ) const {
 		size_t i = 1;
@@ -34,9 +36,6 @@ public:
 			this->directory += '/';
 		}
 		this->directory += "new/";
-		//Mail_file file( ep->d_name, &full_path, ++i, st.st_size );
-		//total_size += file.get_size();
-		//files.push_back( file );
 		std::vector<std::string> filenames;
 		std::vector<size_t> sizes;
 		if ( !read_dir( &this->directory, &filenames, true, &sizes ) ) {
@@ -47,11 +46,18 @@ public:
 			}
 		}
 		else {
-			throw std::invalid_argument( "ERROR: Unable to read mail directory" );
+			DEBUG_INLINE( "MAIL_DIR: Unable to read directory: " );
+			DEBUG_LINE( this->directory );
+			this->valide = false;
 		}
 	}
 
 	Mail_dir(){}
+
+	bool is_valid() const {
+		return valide;
+	}
+
 	const std::vector<Mail_file> * get_file_vector() const {
 		return &files;
 	}

@@ -13,6 +13,7 @@
 #include <unistd.h>      // close()
 #include <sys/socket.h>  // prace se sockety
 #include <netinet/in.h>  // sockaddr_in
+#include <mutex>
 
 #include "process_requests.hpp"
 #include "globals.hpp"
@@ -46,6 +47,7 @@ public:
 	Arguments() {};
 };
 
+bool access_maildir( Mail_dir * directory, const std::string * username, const std::string * directory_path );
 bool move_files( std::string directory );
 void reverse_all();
 #endif
