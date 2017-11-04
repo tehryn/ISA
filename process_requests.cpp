@@ -93,14 +93,19 @@ std::string process_user( const std::string * request, unsigned * state, const s
 	return response;
 }
 
-std::string process_quit(  const std::string * request, unsigned * state ) {
+std::string process_quit(  const std::string * request, unsigned * state, Mail_dir * directory ) {
 	std::vector<std::string> params = get_params( 4, request );
 	std::string response = "";
 	if ( params.size() != 0 ) {
 		response = "-ERR Hmmm, let me think about that... Hmmm... What? (Too many arguments)";
 	}
 	else {
-		response = "+OK Farwell my friend. I will never forget the time we spent together. (Closing connection)";
+		if ( directory->delete_files() ) {
+			response = "-ERR Sorry, I wasn't able to delete al requied files. (Closing connection)";
+		}
+		else {
+			response = "+OK Farwell my friend. I will never forget the time we spent together. (Closing connection)";
+		}
 		*state = STATE_QUIT;
 	}
 	return response;

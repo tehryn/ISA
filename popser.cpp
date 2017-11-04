@@ -252,7 +252,7 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 			message = process_rset( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "QUIT", 4 ) ) {
-			message = process_quit( &message, &state );
+			message = process_quit( &message, &state, &directory );
 		}
 		else if ( !strncmp(command.c_str(), "TOP",  3 ) ) {
 			message = process_top( &message, &state, &directory );

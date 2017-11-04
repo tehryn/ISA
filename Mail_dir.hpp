@@ -54,6 +54,21 @@ public:
 
 	Mail_dir(){}
 
+	bool delete_files() {
+		bool ret_val = false;
+		this->valide = false;
+		for( Mail_file & file:files ) {
+			if ( file.is_deleted() ) {
+				if ( remove( file.get_name()->c_str() ) ) {
+					ret_val = false;
+				}
+				DEBUG_INLINE( "DELETED: " );
+				DEBUG_LINE( *file.get_name() );
+			}
+		}
+		return ret_val;
+	}
+
 	bool is_valid() const {
 		return valide;
 	}
