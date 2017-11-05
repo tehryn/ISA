@@ -20,4 +20,4 @@ globals.o: globals.hpp globals.cpp
 
 .PHONY: clean
 clean:
-	rm popser.o process_requests.o md5.o globals.o popser
+	rm -f popser.o process_requests.o md5.o globals.o popser

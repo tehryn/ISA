@@ -130,10 +130,10 @@ std::string process_list( const std::string * request, unsigned * state, Mail_di
 				}
 				if ( id > 0 ) {
 					if ( directory->file_exists( id ) ) {
-						response = "-ERR I really tried my best, but I can't find your message. (No such message)";
+						response = "+OK " + std::to_string( id ) + " " + std::to_string( directory->get_file_size( id ) );
 					}
 					else {
-						response = "+OK " + std::to_string( directory->get_file_id( id ) ) + " " + std::to_string( directory->get_file_size( id ) );
+						response = "-ERR I really tried my best, but I can't find your message. (No such message)";
 					}
 				}
 				else {
@@ -355,7 +355,7 @@ std::string process_uidl( const std::string * request, unsigned * state, Mail_di
 					response = "-ERR I really tried my best, but I can't find your message. (No such message)";
 				}
 				else {
-					response = "+OK " + std::to_string( directory->get_file_id( id ) ) + " " + *uid;
+					response = "+OK " + std::to_string( id ) + " " + *uid;
 				}
 			}
 			else {

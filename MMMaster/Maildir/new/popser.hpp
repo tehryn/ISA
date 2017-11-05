@@ -47,25 +47,7 @@ public:
 	Arguments() {};
 };
 
-/**
- * Initialize Maildir
- * @param  directory      Maildir that will be initializated
- * @param  username       Username
- * @param  directory_path Path to Maildir
- * @pre                   directory, userame and directory_path points to allocated space.
- * @return                False on success, otherwise true
- */
 bool access_maildir( Mail_dir * directory, const std::string * username, const std::string * directory_path );
-
-/**
- * Moves all files from directory/cur to directory/new
- * @param  directory path to root directory of cur and new
- * @return           False on success, otherwise true.
- */
 bool move_files( std::string directory );
-
-/**
- * Reads journal and undo all in it
- */
 void reverse_all();
 #endif

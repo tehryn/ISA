@@ -33,14 +33,6 @@ enum {
 	STATE_QUIT
 };
 
-/**
- * Reads whole directory and store files into vector
- * @param  directory     path to directory
- * @param  ret_vector    read files will be appended into this vector
- * @param  use_full_path if false, only filename will be appended, if true, whole path to file will be appended
- * @param  sizes         if set, sizes of file will be appended into this vector
- * @return               false on succes, otherwise true
- */
 bool read_dir( const std::string * directory, std::vector<std::string> * ret_vector, bool use_full_path=true, std::vector<size_t> * sizes=nullptr );
 
 #endif

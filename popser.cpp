@@ -11,8 +11,10 @@ mutex mail_dir_lock;
 long unsigned thread_lock_id;
 
 // ./popser [-h] [-a PATH] [-c] [-p PORT] [-d PATH] [-r]
+// constructor of class arguments
 Arguments::Arguments( int argc, char **argv ) {
 	vector<string> args( argv, argv + argc );
+	// iteration over arguments
 	for ( int i = 1; i < argc; i++ ) {
 		if ( args[i] == "-r" && this->reset == false ) {
 			this->reset = true;
@@ -44,48 +46,68 @@ Arguments::Arguments( int argc, char **argv ) {
 			throw invalid_argument( "ERROR: Arguments of program are invalid, start program with -h for help." );
 		}
 	}
+	// validation of arguments
 	if ( !( ( auth_file != "" && directory != "" && port >= 0 ) || ( reset && auth_file == "" && directory == "" && port == -1 && !clear_pass ) || help ) ) {
 		throw invalid_argument( "ERROR: Arguments of program are invalid, start program with -h for help." );
 	}
 }
 
+// -r parametr
 void reverse_all() {
 	ifstream file( JOURNAL_NAME );
 	if ( !file.is_open() ) { // journal neexistuje nebo server nema opravneni ke cteni
 		return;
 	}
+	// reading whole file into string
 	string content( ( istreambuf_iterator<char>( file ) ), istreambuf_iterator<char>() );
 	string old_file = "";
 	string new_file = "";
 	size_t start_idx = 0;
 	size_t next_idx = 0;
+	vector<string> records;
+	// iteration over journal
 	while ( ( next_idx = content.find( "<//SEPARATOR//>", start_idx ) ) != string::npos ) {
 		if ( new_file.size() == 0 ) {
 			new_file = content.substr( start_idx, next_idx-start_idx );
+			records.insert( records.begin(), new_file );
 		}
 		else {
 			old_file = content.substr( start_idx, next_idx-start_idx );
-			if ( rename( old_file.c_str(), new_file.c_str() ) ) {
-				cerr << "WARNING: Cannot rename file " << old_file << " to " << new_file << endl;
-			}
-			DEBUG_INLINE( "RENAMED: " );
+			records.insert( records.begin(), old_file );
+			new_file = "";
+			old_file = "";
+			DEBUG_INLINE( "RENAME: " );
 			DEBUG_INLINE( old_file );
 			DEBUG_INLINE( " >>> " );
 			DEBUG_LINE( new_file );
-			new_file = "";
-			old_file = "";
 		}
 		swap( start_idx, next_idx );
 		start_idx += 15;
 	}
+	old_file = "";
+	DEBUG_VECTOR(records);
+	// after we have all of records in vecotor, we can start renaming
+	for( string & filename:records ) {
+		if ( old_file.size() ) {
+			if ( rename( old_file.c_str(), filename.c_str() ) ) {
+				cerr << "WARNING: Cannot rename file " << old_file << " to " << filename << endl;
+			}
+			old_file = "";
+		}
+		else {
+			old_file = filename;
+		}
+	}
 	file.close();
-	remove( JOURNAL_NAME );
+	remove( JOURNAL_NAME ); // and just remove journal file
 }
 
+// moves files from cur to new
 bool move_files( const std::string * directory ) {
 	vector<string> files;
 	string new_dir = *directory;
 	string cur_dir = *directory;
+	// making sure that / is at the end
 	if ( new_dir[ new_dir.size() - 1 ] == '/' ) {
 		new_dir += "new/";
 		cur_dir += "cur/";
@@ -94,16 +116,20 @@ bool move_files( const std::string * directory ) {
 		new_dir += "/new/";
 		cur_dir += "/cur/";
 	}
+	// reading content of directory into vector
 	if ( read_dir( &cur_dir, &files, false ) ) {
 		return true;
 	}
+	// opening journal
 	fstream fs;
 	fs.open ( JOURNAL_NAME, fstream::app);
 	if ( fs.is_open() ) {
+		// moving all files in journal
 		for ( string & filename:files ) {
 			string new_filename = filename;
 			string new_file = new_dir + new_filename; // file that is in Maildir/cur
 			int counter = 0;
+			// making sure I will not overwrite some file
 			while ( access( new_file.c_str(), F_OK ) != -1 ) {
 				if ( counter++ == 4096 ) { // in case of bad luck
 					fs.close();
@@ -133,6 +159,7 @@ bool move_files( const std::string * directory ) {
 	}
 }
 
+// prints help
 void help() {
 	cout << "./popser [-h] [-a PATH] [-c] [-p PORT] [-d PATH] [-r]" << endl;
 	cout << "-h Optional parametr, prints help" << endl;
@@ -143,19 +170,21 @@ void help() {
 	cout << "-r Server will clean after himself - everything will be undone" << endl;
 }
 
+// exits program
 void quit( int sig ) {
-	cerr << "Closing connections." << endl;
+	// ending threads
 	for( thread * & t: threads ) {
 		t->detach();
 		delete t;
 	}
+	// closing sockets
 	for ( int & sock: sockets ) {
 		close( sock );
 	}
-	cerr << "Closing server." << endl;
 	exit(0);
 }
 
+// initialize maildir
 bool access_maildir( Mail_dir * directory, const string * username, const string * directory_path ) {
 	std::string user_path = *directory_path + ( ( ( *directory_path )[ directory_path->size() - 1 ] == '/' ) ?( *username + "/Maildir/" ) : ( "/" + *username + "/Maildir/" ) );
 	if ( move_files( &user_path ) ) {
@@ -165,18 +194,19 @@ bool access_maildir( Mail_dir * directory, const string * username, const string
 	return !directory->is_valid();
 }
 
+// connection between thread and client
 void talk_with_client( int sockcomm, const string * directory_path, const string * user, const string * pass, bool use_md5 ) {
-	string message      = "+OK Hello, my name is Debbie and I am POP3 sever ";
-	string command      = "";
-	string login        = "";
-	string md5_pass     = "";
-	uint   state        = STATE_START;
-	char   request[256] = {0, };
-	char   hostname[64] = {0, };
-	pid_t  pid          = getpid();
-	locale loc;
-	unsigned long epoch = time( nullptr );
-	Mail_dir directory;
+	string message      = "+OK Hello, my name is Debbie and I am POP3 sever "; // messages for/from client
+	string command      = ""; // command that is given by client
+	string login        = ""; // valide login
+	string md5_pass     = ""; // password in md5 hash
+	uint   state        = STATE_START; // current state
+	char   request[256] = {0, }; // messages from client
+	char   hostname[64] = {0, }; // hostname of server
+	pid_t  pid          = getpid(); // pid of proccess
+	locale loc; // locale
+	unsigned long epoch = time( nullptr ); // time since epoch
+	Mail_dir directory; // Maildir
 
 	gethostname( hostname, 63 );
 	md5_pass = "<" + to_string( pid ) + "." + to_string( epoch ) + "@" + hostname + ">";
@@ -187,29 +217,33 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 	DEBUG_INLINE( " " );
 	DEBUG_LINE( md5_pass );
 
+	// welcome messages
 	if ( send( sockcomm, message.data(), message.size(), 0 ) < 0 ) {
-		cerr << "ERROR: Unable to send message. (thread " << sockcomm << ")" << endl;
+		cerr << "ERROR: Unable to send message. (socket " << sockcomm << ")" << endl;
 		close( sockcomm );
 		return;
 	}
 
 	message.clear();
+	// comunication between server and client
 	while ( state != STATE_QUIT && recv( sockcomm, request, 255, 0 ) ) {
-		message += request;
+		message += request; // storing client request
 		memset( request, 0, 256); // setting whole content of buffer to 0
-		size_t idx = message.find( "\r\n" );
-		if ( idx == string::npos ) {
+		size_t idx = message.find( "\r\n" ); // detecting if message was read
+		if ( idx == string::npos ) { // if not - continue
 			continue;
 		}
-		if ( message.size() < 4 ) {
+		if ( message.size() < 4 ) { // detecting minimum size of message
 			command = "ERROR";
 		}
 		else {
+			// converting all to uppercase
 			command = message;
 			for( int i = 0; i < 4; i++ ) {
 				command[i] = toupper( message[i], loc );
 			}
 		}
+		// parsing all of commands
 		if ( !strncmp(command.c_str(), "USER", 4 ) ) {
 			if ( !use_md5 ) {
 				message = process_user( &message, &state, user );
@@ -220,11 +254,17 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 		}
 		else if ( !strncmp(command.c_str(), "PASS", 4 ) ) {
 			if ( !use_md5 ) {
+				// locking directory
 				if ( mail_dir_lock.try_lock() ) {
 					thread_lock_id = pthread_self();
 					message = process_pass( &message, &state, pass );
-					if ( state == STATE_AUTHORIZED && access_maildir( &directory, user, directory_path ) ) {
-						message = "-ERR Cannot access Maildir";
+					if ( state == STATE_AUTHORIZED ) {
+						if ( access_maildir( &directory, user, directory_path ) ) {
+							message = "-ERR Cannot access Maildir";
+							mail_dir_lock.unlock();
+						}
+					}
+					else {
 						mail_dir_lock.unlock();
 					}
 				}
@@ -262,11 +302,17 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 		}
 		else if (  !strncmp(command.c_str(), "APOP",  4 ) ) {
 			if ( use_md5 ) {
+				// locking directory
 				if ( mail_dir_lock.try_lock() ) {
 					thread_lock_id = pthread_self();
 					message = process_apop( &message, &state, user, &md5_pass);
-					if ( state == STATE_AUTHORIZED && access_maildir( &directory, user, directory_path ) ) {
-						message = "-ERR Cannot access Maildir";
+					if ( state == STATE_AUTHORIZED ) {
+						if ( access_maildir( &directory, user, directory_path ) ) {
+							message = "-ERR Cannot access Maildir";
+							mail_dir_lock.unlock();
+						}
+					}
+					else {
 						mail_dir_lock.unlock();
 					}
 				}
@@ -292,6 +338,7 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 		}
 		message.clear();
 	}
+	// unlocking directory
 	if ( mail_dir_lock.try_lock() || pthread_equal( pthread_self(), thread_lock_id ) ) {
 		mail_dir_lock.unlock();
 	}
@@ -353,6 +400,7 @@ int main( int argc, char **argv) {
 		cerr << "ERROR: Could not open socket" << endl;
 		return ERR_SOCKET;
 	}
+	sockets.push_back(sockfd);
 
 	int optval = 1;
 	setsockopt( sockfd, SOL_SOCKET, SO_REUSEADDR,( const void * )&optval , sizeof(int) );

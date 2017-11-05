@@ -7,35 +7,16 @@
 #include "globals.hpp"
 #include "Mail_file.hpp"
 
-/**
- * Class Mail_dir
- * Represents maildir structure of one user.
- */
 class Mail_dir {
 private:
-	/// files in user/Maildir/new
 	std::vector<Mail_file> files;
-
-	/// total size of directory
 	size_t total_size     = 0;
-
-	/// string representation of information about directory (for list command)
 	std::string dir_info  = "";
-
-	/// string representation of unique ids (for uidl command)
 	std::string dir_uids  = "";
-
-	/// path to maildir
 	std::string directory = "";
+	std::string user      = "";
+	bool valide           = true;
 
-	/// if set on true, object is safe for use.
-	bool valide           = false;
-
-	/**
-	 * returns true index of file in vector files
-	 * @param  id ID of mail
-	 * @return    -1 if file does not exists otherwise index
-	 */
 	long int get_true_index ( size_t id ) const {
 		size_t i = 1;
 		long int idx = 0;
@@ -49,11 +30,7 @@ private:
 		return ( static_cast<size_t>( idx ) < files.size() ) ? idx : -1;
 	}
 public:
-	/**
-	 * Constructor of class.
-	 * @param directory Path to Maildir.
-	 */
-	Mail_dir( const char * directory ) {
+	Mail_dir( const char * directory, std::string hist_file = "./.popser.hist" ) {
 		this->directory = directory;
 		if ( ( this->directory )[ this->directory.size() - 1 ] != '/' ) {
 			this->directory += '/';
@@ -67,7 +44,6 @@ public:
 				total_size += file.get_size();
 				files.push_back( file );
 			}
-			this->valide = true;
 		}
 		else {
 			DEBUG_INLINE( "MAIL_DIR: Unable to read directory: " );
@@ -76,15 +52,8 @@ public:
 		}
 	}
 
-	/**
-	 * [Mail_dir description]
-	 */
 	Mail_dir(){}
 
-	/**
-	 * Deletes files marked as deleted
-	 * @return false on success, true if one or more files was not deleted.
-	 */
 	bool delete_files() {
 		bool ret_val = false;
 		this->valide = false;
@@ -100,36 +69,22 @@ public:
 		return ret_val;
 	}
 
-	/**
-	 * Tells if it Maildir is in valide state
-	 * @return true if it is safe to use Maildir otherwise false.
-	 */
 	bool is_valid() const {
 		return valide;
 	}
 
-	/**
-	 * Return total size of directory, files marked as deleted are not included.
-	 * @return size of directory
-	 */
+	const std::vector<Mail_file> * get_file_vector() const {
+		return &files;
+	}
+
 	size_t get_dir_size() const {
 		return total_size;
 	}
 
-	/**
-	 * Returns number of messages in directory. Files marked as deleted are not
-	 * included in total number
-	 * @return number of messages
-	 */
 	size_t get_num_of_msg() const {
-		return files.size(); // TODO
+		return files.size();
 	}
 
-	/**
-	 * Marks one file as deleted in directory
-	 * @param  id ID of email
-	 * @return    false if file exists, otherwise true
-	 */
 	bool delete_file( size_t id ) {
 		long int idx = get_true_index( id );
 		if ( idx >= 0 ) {
@@ -144,10 +99,6 @@ public:
 		}
 	}
 
-	/**
-	 * Return information about directory and files. Usable for list command
-	 * @return string representing directory information
-	 */
 	std::string get_dir_info() {
 		if ( dir_info.size() == 0 ) {
 			size_t id = 1;
@@ -160,21 +111,21 @@ public:
 		return dir_info;
 	}
 
-	/**
-	 * Tells if file exists.
-	 * @param  id ID of email (file)
-	 * @return    true if file exists, otherwise false.
-	 */
 	bool file_exists( size_t id ) const {
 		long int idx = get_true_index( id );
 		return idx >= 0;
 	}
 
-	/**
-	 * Returns size of file.
-	 * @param  id ID of email (file)
-	 * @return    Size of file
-	 */
+	size_t get_file_id( size_t id ) const {
+		long int idx = get_true_index( id );
+		if ( idx >= 0 ) {
+			return idx;
+		}
+		else {
+			return 0;
+		}
+	}
+
 	size_t get_file_size( size_t id ) const {
 		long int idx = get_true_index( id );
 		if ( idx >= 0 ) {
@@ -185,11 +136,6 @@ public:
 		}
 	}
 
-	/**
-	 * Return content of file as string.
-	 * @param  id ID of email (file).
-	 * @return    Content of file.
-	 */
 	const std::string * get_file_content( size_t id ) {
 		long int idx = get_true_index( id );
 		if ( idx >= 0 ) {
@@ -205,11 +151,6 @@ public:
 		}
 	}
 
-	/** Returns name of file as string.
-	 * [get_file_name description]
-	 * @param  id ID of email (file)
-	 * @return    Filename.
-	 */
 	const std::string * get_file_name( size_t id ) const {
 		long int idx = get_true_index( id );
 		if ( idx >= 0 ) {
@@ -220,9 +161,6 @@ public:
 		}
 	}
 
-	/**
-	 * All files will be marked as undeleted.
-	 */
 	void reset() {
 		for( Mail_file &f: files ) {
 			if ( f.is_deleted()) {
@@ -233,11 +171,6 @@ public:
 		dir_info = "";
 	}
 
-	/**
-	 * Return unique id of file.
-	 * @param  id ID of email (file)
-	 * @return    String representing unique ID
-	 */
 	const std::string * get_file_uid( size_t id ) const {
 		long int idx = get_true_index( id );
 		if ( idx >= 0 ) {
@@ -248,10 +181,6 @@ public:
 		}
 	}
 
-	/**
-	 * Return string representation of all files unique IDs. Usable in UIDL command.
-	 * @return String representing unique IDs of files.
-	 */
 	const std::string * get_files_uid() {
 		if ( dir_uids.size() == 0 ) {
 			size_t id = 1;
