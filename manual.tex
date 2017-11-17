@@ -1,29 +1,35 @@
-\documentclass[12pt,a4paper,titlepage]{report}
-
+\documentclass[a4paper, 11pt, onecolumn]{article}
+\usepackage[left=1.5cm,text={18cm, 25cm},top=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
 \usepackage[czech]{babel}
-\usepackage[latin2]{inputenc}
-
-\title{Síťové aplikace a správa sítí - POP3 server}
-\author{Jiří Matějka}
-\date{17. 11. 2017}
+\newcommand{\czuv}[1]{\quotedblbase #1\textquotedblleft}
 
 \begin{document}
-    \maketitle
-    \tableofcontents
+{\setstretch{0.5}
+\begin{center}
 
-    \section*{Úvod}
-        Příklad kapitoly, která nebude číslovaná a nebude zahrnuta v obsahu.
+\Huge
+\textsc{
+Fakulta informačních technologií \\
+Vysoké učení technické v Brně}\\
+\vspace{\stretch{0.382}}
 
-    \section{První kapitola}
-        Velmi zajímavý text 1. kapitoly
 
-    \section{Druhá kapitola}
-        Ještě zajímavější text druhé kapitoly.
+\LARGE
+Síťové aplikace a správa sítí\\
+POP3 server\\
+\vspace{\stretch{0.618}}
 
-        \subsection{Nadpis druhé úrovně}
-            Logicky oddělený celek.
+\end{center}
 
-   \section*{Závěr}
-       Zajímavé shrnutí Vaší práce.
+\Large{17. 11. 2017} \hfill Jiří Matějka
+}% AND singlespacing ONECOLUMN
+\thispagestyle{empty}
+
+
+\newpage
+\tableofcontents
+\newpage
+\setcounter{page}{1}
 
 \end{document}
