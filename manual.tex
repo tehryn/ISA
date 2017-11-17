@@ -1,36 +1,31 @@
-\documentclass[a4paper, 11pt, onecolumn]{article}
-\usepackage[left=1.5cm,text={18cm, 25cm},top=2.5cm]{geometry}
-\usepackage[utf8]{inputenc}
-\usepackage[czech]{babel}
-\usepackage{setspace}
-\newcommand{\czuv}[1]{\quotedblbase #1\textquotedblleft}
+\documentclass[12pt,a4paper,titlepage]{report} % deklarace tøídy
 
-\begin{document}
-{\setstretch{0.5}
-\begin{center}
+\usepackage[czech]{babel} % jazyk dokumentu
+\usepackage[latin2]{inputenc} % kódování dokumentu
 
-\Huge
-\textsc{
-Fakulta informaÄnÃ­ch technologiÃ­ \\
-VysokÃ© uÄenÃ­ technickÃ© v BrnÄ›}\\
-\vspace{\stretch{0.382}}
+\title{Pøíklad seminární práce} % název dokumentu
+\author{ITNetwork.cz} % autor dokumentu
+\date{1.1.2015} % datum vytvoøení dokumentu
 
+\begin{document} % zaèátek textu dokumentu
 
-\LARGE
-SÃ­Å¥ovÃ© aplikace a sprÃ¡va sÃ­tÃ­\\
-POP3 server\\
-\vspace{\stretch{0.618}}
+    \maketitle % vypsání titulní stránky dokumentu
 
-\end{center}
+    \tableofcontents % vypsání obsahu
 
-\Large{17. 11. 2017} \hfill JiÅ™Ã­ MatÄ›jka
-}% AND singlespacing ONECOLUMN
-\thispagestyle{empty}
+    \section*{Úvod} % neèíslovanı nadpis, není uveden v obsahu
+        Pøíklad kapitoly, která nebude èíslovaná a nebude zahrnuta v obsahu.
 
+    \section{První kapitola} % normální èíslovanı nadpis
+        Velmi zajímavı text 1. kapitoly
 
-\newpage
-\tableofcontents
-\newpage
-\setcounter{page}{1}
+    \section{Druhá kapitola}
+        Je¹tì zajímavìj¹í text druhé kapitoly.
 
-\end{document}
+        \subsection{Nadpis druhé úrovnì} % èíslovanı podnadpis
+            Logicky oddìlenı celek.
+
+   \section*{Závìr} % neèíslovanı nadpis, není uveden v obsahu
+       Zajímavé shrnutí Va¹í práce.
+
+\end{document} % konec dokumentu
