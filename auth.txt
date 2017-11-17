@@ -1,2 +1,2 @@
-username: MMMaster
-password: heslo
+username = MMMaster
+password = heslo

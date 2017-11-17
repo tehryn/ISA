@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <fstream>
 #include "md5.hpp"
+#include "globals.hpp"
 
 /**
  * Class representing file with content of email
@@ -38,7 +39,9 @@ public:
 		this->unique_id = md5( *filename );
 		this->filename  = *filename;
 		this->deleted   = false;
-		this->size      = size;
+		if ( load_content() ) {
+			throw std::invalid_argument( "ERROR: Cannot read from file: " );
+		}
 	}
 
 	/**
@@ -87,21 +90,38 @@ public:
 	 */
 	bool load_content() {
 		std::ifstream file( this->filename );
-		if ( this->size > 0 ) {
-			if ( file.is_open() ) {
-				content = std::string( std::istreambuf_iterator<char>( file ), std::istreambuf_iterator<char>() );
-				file.close();
-				content_avaible = true;
-				return false;
+		content = "";
+		if ( file.is_open() ) {
+			//content = std::string( std::istreambuf_iterator<char>( file ), std::istreambuf_iterator<char>() );
+			char c;
+			size_t dots_added = 0;
+			while ( file.get(c) ) {
+				if ( content.size() && c == '.' && content[ content.size() -1 ] == '\n' ) {
+					content += ".";
+					dots_added++;
+				}
+				if  ( c == '\n' ) {
+					if ( content.size() && content[ content.size() - 1 ] != '\r' ) {
+						content += '\r';
+					}
+				}
+				content += c;
 			}
-			else {
-				return true ;
+			file.close();
+			if ( content.size() && content[ content.size() - 1 ] != '\n' ) {
+				content += "\r\n";
 			}
+			this->size = content.size() - dots_added;
+			content_avaible = true;
+			DEBUG_INLINE( "FILE: ");
+			DEBUG_INLINE( filename );
+			DEBUG_INLINE( "; SIZE:");
+			DEBUG_LINE( size );
+			return false;
 		}
 		else {
-			content = "";
-			content_avaible = true;
-			return false;
+			this->size = 0;
+			return true ;
 		}
 	}
 

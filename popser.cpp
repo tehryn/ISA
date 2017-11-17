@@ -186,11 +186,10 @@ void quit( int sig ) {
 
 // initialize maildir
 bool access_maildir( Mail_dir * directory, const string * username, const string * directory_path ) {
-	std::string user_path = *directory_path + ( ( ( *directory_path )[ directory_path->size() - 1 ] == '/' ) ?( *username + "/Maildir/" ) : ( "/" + *username + "/Maildir/" ) );
-	if ( move_files( &user_path ) ) {
+	if ( move_files( directory_path ) ) {
 		return true;
 	}
-	*directory = Mail_dir( user_path.c_str() );
+	*directory = Mail_dir( directory_path->c_str() );
 	return !directory->is_valid();
 }
 
@@ -226,7 +225,7 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 
 	message.clear();
 	// comunication between server and client
-	while ( state != STATE_QUIT && recv( sockcomm, request, 255, 0 ) ) {
+	while ( state != STATE_QUIT && ( recv( sockcomm, request, 255, 0 ) > 0 ) ) {
 		message += request; // storing client request
 		memset( request, 0, 256); // setting whole content of buffer to 0
 		size_t idx = message.find( "\r\n" ); // detecting if message was read
@@ -352,8 +351,10 @@ int main( int argc, char **argv) {
 		struct sockaddr_in serv_addr = {},
 						   cli_addr  = {};
 		string user, pass;
-	signal( SIGTERM, quit );
+	signal( SIGTERM, quit ); // signals
 	signal( SIGINT, quit );
+
+	// parsing arguments
 	Arguments args;
 	try {
 		args = Arguments( argc, argv );
@@ -362,22 +363,27 @@ int main( int argc, char **argv) {
 		return ERR_ARGUMENT;
 	}
 
+	// printing help
 	if ( args.help ) {
 		help();
 		return 0;
 	}
 
+	// reseting server
 	if ( args.reset ) {
 		reverse_all();
-		return 0;
+		if ( args.port < 1 ) {
+			return 0;
+		}
 	}
 
+	// reading username and password
 	ifstream auth ( args.auth_file );
 	if ( auth.is_open() ) {
-		if ( getline( auth, user ) && user.find( "username: " ) != string::npos && user.size() > 10 ) {
-			if ( getline( auth, pass ) && pass.find( "password: " ) != string::npos && pass.size() > 10 ) {
-				user = user.substr( 10 );
-				pass = pass.substr( 10 );
+		if ( getline( auth, user ) && user.find( "username = " ) != string::npos && user.size() > 11 ) {
+			if ( getline( auth, pass ) && pass.find( "password = " ) != string::npos && pass.size() > 11 ) {
+				user = user.substr( 11 );
+				pass = pass.substr( 11 );
 			}
 			else {
 				cerr << "ERROR: File in invalid format: " << args.auth_file << endl;
@@ -395,29 +401,33 @@ int main( int argc, char **argv) {
 		return ERR_FILE;
 	}
 
+	// initializating socket
 	sockfd = socket( AF_INET, SOCK_STREAM, 0 );
 	if ( sockfd < 0 ) {
 		cerr << "ERROR: Could not open socket" << endl;
 		return ERR_SOCKET;
 	}
 	sockets.push_back(sockfd);
-
 	int optval = 1;
 	setsockopt( sockfd, SOL_SOCKET, SO_REUSEADDR,( const void * )&optval , sizeof(int) );
 
+	// binding
 	memset( ( void * ) &serv_addr, 0 , sizeof( serv_addr ) );
 	serv_addr.sin_family      = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port        = htons( args.port );
-
 	if ( bind( sockfd, ( struct sockaddr * ) &serv_addr, sizeof( serv_addr ) ) < 0 ) {
-		cerr << "ERROR: Unable to bind" << endl;
+		cerr << "ERROR: Unable to bind. Is port valide?" << endl;
 		return ERR_BIND;
 	}
+
+	// listening
 	if ( listen( sockfd, MAX_LEN_OF_QUEUE ) < 0 ) {
-		cerr << "ERROR: Unable to listen" << endl;
+		cerr << "ERROR: Unable to listen." << endl;
 		return ERR_LISTEN;
 	}
+
+	// Parsing incoming clients
 	while (true) {
 		clilen = sizeof( cli_addr );
 		sockcomm = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );

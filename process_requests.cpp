@@ -74,21 +74,26 @@ std::string process_pass( const std::string * request, unsigned * state, const s
 std::string process_user( const std::string * request, unsigned * state, const std::string * username ) {
 	std::string response;
 	std::vector<std::string> params = get_params( 4, request );
-	if ( params.size() == 0 ) {
-		response = "-ERR Sorry, i did't catch your name, what was it? (Too few arguments)";
-	}
-	else if ( params.size() > 1 ) {
-		response = "-ERR Sorry, what of that is your name? (Too many arguments)";
-	}
-	else {
-		std::string login = params[0];
-		if ( login == *username ) {
-			response = "+OK I knew you will come back! But is it really you? Tell me password! (User accepted)";
-			*state   = STATE_USER;
+	if ( *state == STATE_START ) {
+		if ( params.size() == 0 ) {
+			response = "-ERR Sorry, i did't catch your name, what was it? (Too few arguments)";
+		}
+		else if ( params.size() > 1 ) {
+			response = "-ERR Sorry, what of that is your name? (Too many arguments)";
 		}
 		else {
-			response = "-ERR I don't know you and I will not share my private data with stranger.(Unknown user)";
+			std::string login = params[0];
+			if ( login == *username ) {
+				response = "+OK I knew you will come back! But is it really you? Tell me password! (User accepted)";
+				*state   = STATE_USER;
+			}
+			else {
+				response = "-ERR I don't know you and I will not share my private data with stranger.(Unknown user)";
+			}
 		}
+	}
+	else {
+		response = "-ERR User has been alreadt specified."
 	}
 	return response;
 }
@@ -120,7 +125,7 @@ std::string process_list( const std::string * request, unsigned * state, Mail_di
 	else {
 		if ( *state == STATE_AUTHORIZED ) {
 			if ( params.size() == 0 ) {
-				response = "+OK " + std::to_string( directory->get_num_of_msg() ) + " messages (" + std::to_string( directory->get_dir_size() ) +" ocets)\r\n";
+				response = "+OK " + std::to_string( directory->get_num_of_msg() ) + " messages (" + std::to_string( directory->get_dir_size() ) +" octets)\r\n";
 				response += directory->get_dir_info() + ".";
 			}
 			else {
@@ -168,7 +173,7 @@ std::string process_retr( const std::string * request, unsigned * state, Mail_di
 					}
 					else  {
 						response  = "+OK " + std::to_string( directory->get_file_size( id ) ) + " octets\r\n";
-						response += ( *directory->get_file_content( id ) ) + "\r\n.\r\n";
+						response += ( *directory->get_file_content( id ) ) + ".";
 					}
 				}
 				else {
@@ -278,6 +283,7 @@ std::string process_top ( const std::string * request, unsigned * state, Mail_di
 					if (idx == std::string::npos) {
 						idx = 0;
 					}
+					idx += 4;
 					for( int i = 0; i < lines; i++ ) {
 						idx = str->find( '\n', idx );
 						if ( idx == std::string::npos ) {
@@ -288,7 +294,7 @@ std::string process_top ( const std::string * request, unsigned * state, Mail_di
 						}
 					}
 					response  = "+OK Here is your message\r\n";
-					response += str->substr( 0, idx ) + "\r\n.";
+					response += str->substr( 0, idx ) + ".";
 				}
 				else {
 					response = "-ERR No, no and no. I can't give you something that does not exist. (No such message)";
