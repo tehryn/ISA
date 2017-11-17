@@ -2,7 +2,7 @@
 
 \usepackage[czech]{babel}
 \usepackage[latin2]{inputenc}
-
+\parindent=0cm
 \title{Sí»ové aplikace a správa sítí - POP3 server}
 \author{Jiøí Matìjka}
 \date{17. 11. 2017}
@@ -10,6 +10,7 @@
 \begin{document}
 
     \maketitle
+
     \tableofcontents
 
     \section{Úvod}
@@ -22,6 +23,7 @@
     \section{Uvedení do problematiky}
         V této èásti dokumentu je struènì popsán formát IMF a Maildir. Dále
 		je zde popsána komunikace a funkènost POP3 serveru.
+
 		\subsection{IMF - Internet message format}
 			Zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
 			mohou nabývat US-ASCII hodnot 1-127.
@@ -34,16 +36,19 @@
 			Hlavièka je sekvence øádkù. Na ka¾dém øádku hlavièky je název pole
 			a jeho hodnota oddìlená ":". Hlavièka je ukonèena prázdným øádkem.
 			Tìlo je opìt sekvence øádkù.
+
 		\subsection{Maildir}
 			Adresáøová struktura Maildir je vhodná pro tøídìní emailù. Ka¾dý
 			u¾ivatel má vlastní slo¾ku Maildir a v ní jsou slo¾ky cur, new a
 			tmp. Se slo¾kou tmp pracuje pouze SMTP server.
+
 		\subsection{Odeslání zprávy klientovi}
 			Pokud klient pou¾ije jeden z pøíkazù k získání emailu, POP3 server
 			danný email ode¹le. Aby klient vedìl, kdy server odeslal celou
 			zprávu, ode¹le na konci emailu osamocenou teèku na øádku a dále
 			nic neposílá. Pokud øádek zprávy zaèíná teèkou, server pøidá dal¹í
 			teèku na zaèátek øádku.
+
 		\subsection{POP3 pøíkazy}
 			Ní¾e jsou uvedeny v¹echny mo¾né dotazy, vèetnì volitelných, na POP3
 			server. Vèechny tyto pøíkazy jsou implementovány v programu popser.
@@ -86,6 +91,7 @@
 			Do té doby je mo¾né obnovit zprávy oznaèené ke smazání pøíkazem RSET.
 
 			Na pøíkaz NOOP server pouze odpoví.
+
 		\subsection{stavy serveru}
 			POP3 server má 3 základní stavy.
 			\begin{itemize}
@@ -95,14 +101,35 @@
 			\end{itemize}
 			Ve stavu AUTHORIZATION lze pouze pou¾ívát pøíkazy USER, PASS, APOP a QUIT,
 			tento stav slou¾í k autorizaci u¾ivatle, poté co se u¾ivatel proká¾e
-			platnými pøihla¹ovacími údaji, pøejde se do stavu TRANSACTION.
-    \section{Druhá kapitola}
-        Je¹tì zajímavìj¹í text druhé kapitoly.
+			platnými pøihla¹ovacími údaji, pøejde se do stavu TRANSACTION. Ve stavu
+			TRANSACTION lze pou¾ít v¹echny pøíkazy, vyjma USER, PASS a APOP. Stav
+			TRANSACTION trvá doku klient nezadá QUIT, poté se pøejde do stavu UPDATE.
+			Ve stavu UPDATE se provede mazání zpráv a následné ukonèení komunikace.
 
-        \subsection{Nadpis druhé úrovnì}
-            Logicky oddìlený celek.
+    \section{Návrh programu}
+		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s klíèem
+		pro ¹ifrování. Klíè se nacházi na konci zprávy a je ve formátu <process-ID.clock@hostname>.
+		Následnì program oèekává pøíkaz APOP nebo USER a PASS, podle argumentù programu.
+		Po úspì¹ném pøihlá¹ení u¾ivatele server pøistoupí k Maildir a pøesune v¹echny
+		zprávy ze slo¾ky new do cur. Následnì server oèekává dal¹í pøíkazy od klienta.
+		Pokud klient zadá pøíkaz QUIT, server sma¾e v¹echny soubory oznaèené ke smazání.
+		Pokud se klient odpojí bez u¾ití pøíkazu QUIT nebo se spojení pøeru¹í,
+		emaily oznaèené ke smazání zùstanou nedotèeny.
+
+	\section{Implementace}
+		Program je implementován v jazyce C a C++. Program vyu¾ívá objektového programování,
+		má deklarované tøídy Mail_file, Mail_dir a Arguments a vyu¾ívá nìkteré objekty i
+		ze standartních knihoven C++, napøíklad vector nebo string.
+
+		Aplikace je vytvoøena pro operaèní systém Linux a byla vyvýjena
+		na Ubuntu 16.04 LTS a testována na systémech Ubuntu 16.04 LTS a CentOS 7.4
+
+		Program je pøekládán pomocí pøekladaèe g++ a pro pøeklad slou¾í soubor
+		Makefile.
 
    \section{Závìr}
-       Zajímavé shrnutí Va¹í práce.
+       Aplikaci popser lze pou¾ít jako POP3 server pro správu jediného úètu. Jsou
+	   v nìm implementovány v¹echny povinné i volitelné funkcionality a byl vyvynut
+	   pro operaèní systém Linux.
 
 \end{document}
