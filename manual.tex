@@ -2,7 +2,8 @@
 
 \usepackage[czech]{babel}
 \usepackage[latin2]{inputenc}
-\parindent=0cm
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{1em}
 \title{Sí»ové aplikace a správa sítí - POP3 server}
 \author{Jiøí Matìjka}
 \date{17. 11. 2017}
@@ -28,16 +29,17 @@
 
 		\subsection{IMF - Internet message format}
 			Zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
-			mohou nabývat US-ASCII hodnot 1-127.\\\\
+			mohou nabývat US-ASCII hodnot 1-127.
+
 
 			Zpráva je rozdìlena
 			podle øádkù. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
-			CR (ASCII hodnota 13) a LF (ASCII hodnota 10).\\\\
+			CR (ASCII hodnota 13) a LF (ASCII hodnota 10).
 
 			Zpráva se dále skládá z hlavièky, po které mù¾e následovat tìlo.
 			Hlavièka je sekvence øádkù. Na ka¾dém øádku hlavièky je název pole
 			a jeho hodnota oddìlená ":". Hlavièka je ukonèena prázdným øádkem.
-			Tìlo je opìt sekvence øádkù.\\\\
+			Tìlo je opìt sekvence øádkù.
 
 		\subsection{Maildir}
 			Adresáøová struktura Maildir je vhodná pro tøídìní emailù. Ka¾dý
