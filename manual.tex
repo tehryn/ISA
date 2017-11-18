@@ -53,12 +53,12 @@
     \section{Úvod}
         Program popser je POP3 server umo¾òující pøipojení více klientù najednou.
 		Klienti mohou komunikovat se serverem pomocí protokolu POP3. Server pracuje
-		s emaily ve fromátu IMF v adresáøové struktuøe typu Maildir. Server
-		pracuje pouze s jednou po¹tovní schránkou, do které mù¾e vstoupit pouze
+		s~emaily ve fromátu IMF v~adresáøové struktuøe typu Maildir. Server
+		pracuje pouze s~jednou po¹tovní schránkou, do které mù¾e vstoupit pouze
 		jeden u¾ivatel.
 
     \section{Uvedení do problematiky}
-        V této èásti dokumentu je struènì popsán formát IMF a Maildir. Dále
+        V~této èásti dokumentu je struènì popsán formát IMF a Maildir. Dále
 		je zde popsána komunikace a funkènost POP3 serveru.
 
 		\subsection{IMF - Internet message format}
@@ -68,18 +68,18 @@
 			Zprávu tvoøí jednotlivé øádky. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
 			CR (ASCII hodnota 13) a LF (ASCII hodnota 10).\cite{web:imf}
 
-			Zpráva se dále skládá z hlavièky, po které mù¾e následovat tìlo.
+			Zpráva se dále skládá z~hlavièky, po které mù¾e následovat tìlo.
 			Hlavièka je sekvence øádkù. Na ka¾dém øádku hlavièky je název pole
 			a jeho hodnota oddìlená ":". Hlavièka je ukonèena prázdným øádkem.
 			Tìlo je opìt sekvence øádkù.\cite{web:imf}
 
 		\subsection{Maildir}
 			Adresáøová struktura Maildir je vhodná pro tøídìní emailù. Ka¾dý
-			u¾ivatel má vlastní slo¾ku Maildir a v ní jsou slo¾ky cur, new a
+			u¾ivatel má vlastní slo¾ku Maildir a v~ní jsou slo¾ky cur, new a
 			tmp. Se slo¾kou tmp pracuje pouze SMTP server.
 
 		\subsection{Odeslání zprávy klientovi}
-			Pokud klient pou¾ije jeden z pøíkazù k získání emailu, POP3 server
+			Pokud klient pou¾ije jeden z~pøíkazù k~získání emailu, POP3 server
 			danný email ode¹le. Aby klient vedìl, kdy server odeslal celou
 			zprávu, ode¹le na konci emailu osamocenou teèku na øádku a dále
 			nic neposílá. Pokud øádek zprávy zaèíná teèkou, server pøidá dal¹í
@@ -87,7 +87,7 @@
 
 		\subsection{POP3 pøíkazy}
 			Ní¾e jsou uvedeny v¹echny mo¾né dotazy, vèetnì volitelných, na POP3
-			server. Vèechny tyto pøíkazy jsou implementovány v programu popser.
+			server. Vèechny tyto pøíkazy jsou implementovány v~programu popser.
 			\begin{itemize}
 				\item USER jmeno\_uzivatele
 				\item PASS heslo
@@ -103,27 +103,27 @@
 				\item UIDL [message\_id]
 			\end{itemize}
 			Pro pøihlá¹ení na server slou¾í pøíkazy USER, PASS a APOP. APOP vyu¾ívá
-			md5 k zakódování hesla. Klíè obdr¾í od serveru na zaèátku spojení a ke
+			md5 k~zakódování hesla. Klíè obdr¾í od serveru na zaèátku spojení a ke
 			klíèi pøipojí své heslo a výsledný øetìzec znakù za¹ifruje md5 algoritmem.
-			USER a PASS slou¾í k ne¹ifrovanému pøenosu. Pokud server podporuje APOP,
-			nesmí podporovat pøíkazy USER ani PASS a obrácenì. V programu popser lze
+			USER a PASS slou¾í k~ne¹ifrovanému pøenosu. Pokud server podporuje APOP,
+			nesmí podporovat pøíkazy USER ani PASS a obrácenì. V~programu popser lze
 			pøepínat mezi podporou tìchto pøíkazù pomocí argumentù programu pøi jeho
 			spu¹tìní.\cite{web:pop3}
 
-			K pøeètení zprávy lze pou¾ít pøíkazy TOP a RETR. Pomocí pøíkazy TOP
+			K~pøeètení zprávy lze pou¾ít pøíkazy TOP a RETR. Pomocí pøíkazy TOP
 			klient získá hlavièku zprávy a pøedem zadaný poèet øádkù zprávy (parametr lines),
 			pokud je zadané vìt¹í èíslo, ne¾ je celkový poèet øádkù, ode¹le se celý email.\cite{web:pop3}
 
-			K získání identifikátorù emailù lze pou¾ít pøíkazi LIST a UIDL. List
+			K~získání identifikátorù emailù lze pou¾ít pøíkazi LIST a UIDL. List
 			vypí¹e v¹echny emaily, které nejsou oznaèeny ke smazaní a ka¾dému pøidìlí
-			ID a vedle ID vypí¹e jeho velikost v oktetech. UIDL k ID zprávám vypí¹e
-			jejich unikátní ID v rámci celého Maildiru. ID zpráv se na rozdíl od
+			ID a vedle ID vypí¹e jeho velikost v~oktetech. UIDL k~ID zprávám vypí¹e
+			jejich unikátní ID v~rámci celého Maildiru. ID zpráv se na rozdíl od
 			tohoto unikátního ID mù¾e mìnit.\cite{web:pop3}
 
 			Pro zji¹tìní velikosti Maildiru (bez slo¾ky tmp) lze pou¾ít pøíkaz STAT.
-			Uvedená velikost je v oktetech.\cite{web:pop3}
+			Uvedená velikost je v~oktetech.\cite{web:pop3}
 
-			DELE slou¾í k mazání zpráv. Zprávy se ma¾ou a¾ po zadání pøíkazu QUIT.
+			DELE slou¾í k~mazání zpráv. Zprávy se ma¾ou a¾ po zadání pøíkazu QUIT.
 			Do té doby je mo¾né obnovit zprávy oznaèené ke smazání pøíkazem RSET.\cite{web:pop3}
 
 			Na pøíkaz NOOP server pouze odpoví.\cite{web:pop3}
@@ -136,24 +136,24 @@
 				\item UPDATE
 			\end{itemize}
 			Ve stavu AUTHORIZATION lze pouze pou¾ívát pøíkazy USER, PASS, APOP a QUIT,
-			tento stav slou¾í k autorizaci u¾ivatle, poté co se u¾ivatel proká¾e
+			tento stav slou¾í k~autorizaci u¾ivatle, poté co se u¾ivatel proká¾e
 			platnými pøihla¹ovacími údaji, pøejde se do stavu TRANSACTION. Ve stavu
 			TRANSACTION lze pou¾ít v¹echny pøíkazy, vyjma USER, PASS a APOP. Stav
 			TRANSACTION trvá doku klient nezadá QUIT, poté se pøejde do stavu UPDATE.
 			Ve stavu UPDATE se provede mazání zpráv a následné ukonèení komunikace.\cite{web:pop3}
 
     \section{Návrh programu}
-		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s klíèem
+		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s~klíèem
 		pro ¹ifrování. Klíè se nacházi na konci zprávy a je ve formátu <process-ID.clock@hostname>.
 		Následnì program oèekává pøíkaz APOP nebo USER a PASS, podle argumentù programu.
-		Po úspì¹ném pøihlá¹ení u¾ivatele server pøistoupí k Maildir a pøesune v¹echny
+		Po úspì¹ném pøihlá¹ení u¾ivatele server pøistoupí k~Maildir a pøesune v¹echny
 		zprávy ze slo¾ky new do cur. Následnì server oèekává dal¹í pøíkazy od klienta.
 		Pokud klient zadá pøíkaz QUIT, server sma¾e v¹echny soubory oznaèené ke smazání.
 		Pokud se klient odpojí bez u¾ití pøíkazu QUIT nebo se spojení pøeru¹í,
 		emaily oznaèené ke smazání zùstanou nedotèeny.
 
 	\section{Implementace}
-		Program je implementován v jazyce C a C++. Program vyu¾ívá objektového programování,
+		Program je implementován v~jazyce C a C++. Program vyu¾ívá objektového programování,
 		má deklarované tøídy Mail\_file, Mail\_dir a Arguments a vyu¾ívá nìkteré objekty i
 		ze standartních knihoven C++, napøíklad vector nebo string. Pro md5 algoritmus byla
 		pou¾ita tøída md5\cite{web:md5}.
@@ -166,7 +166,7 @@
 
 	\section{Závìr}
        Aplikaci popser lze pou¾ít jako POP3 server pro správu jediného úètu. Jsou
-	   v nìm implementovány v¹echny povinné i volitelné funkcionality a byl vyvynut
+	   v~nìm implementovány v¹echny povinné i volitelné funkcionality a byl vyvynut
 	   pro operaèní systém Linux.
 
 	\newpage
