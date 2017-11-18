@@ -37,6 +37,9 @@ private:
 	 * @return    -1 if file does not exists otherwise index
 	 */
 	long int get_true_index ( size_t id ) const {
+		if ( files.size() == 0 ) {
+			return -1;
+		}
 		size_t i = 1;
 		long int idx = 0;
 		while ( ( id > i || files[idx].is_deleted() )&& static_cast<size_t>( idx ) < files.size() ) {

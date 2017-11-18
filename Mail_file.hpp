@@ -110,7 +110,7 @@ public:
 			file.close();
 			if ( content.size() && content[ content.size() - 1 ] != '\n' ) {
 				content += "\r\n";
-				dots_added += 2;
+				//dots_added += 2;
 			}
 			this->size = content.size() - dots_added;
 			content_avaible = true;
