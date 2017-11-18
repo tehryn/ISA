@@ -44,7 +44,7 @@ private:
 		}
 		size_t i = 1;
 		long int idx = 0;
-		while ( ( id > i || files[idx].is_deleted() )&& static_cast<size_t>( idx ) < files.size() ) {
+		while ( ( id > i || ( static_cast<size_t>( idx ) < files.size() && files[idx].is_deleted() ) ) ) {
 			if ( !files[idx].is_deleted() ) {
 				i++;
 			}
