@@ -4,9 +4,21 @@
 \usepackage[latin2]{inputenc}
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{1em}
+
 \title{Sí»ové aplikace a správa sítí - POP3 server}
 \author{Jiøí Matìjka}
 \date{17. 11. 2017}
+
+
+\makeatletter
+\def\@maketitle{
+	\begin{center}
+		\includegraphics[width = mm]{logo.png}
+		{\Huge \bfseries \sffamily \@title }\\[4ex]
+		{\Large  \@author}\\[4ex]
+		\@date\\[8ex]
+	\end{center}}
+\makeatother
 
 \begin{document}
 
@@ -18,7 +30,7 @@
 
     \section{Úvod}
         Program popser je POP3 server umo¾òující pøipojení více klientù najednou.
-		Klienti mohou komunikovat se servrem pomocí protokolu POP3. Server pracuje
+		Klienti mohou komunikovat se serverem pomocí protokolu POP3. Server pracuje
 		s emaily ve fromátu IMF v adresáøové struktuøe typu Maildir. Server
 		pracuje pouze s jednou po¹tovní schránkou, do které mù¾e vstoupit pouze
 		jeden u¾ivatel.
@@ -28,12 +40,10 @@
 		je zde popsána komunikace a funkènost POP3 serveru.
 
 		\subsection{IMF - Internet message format}
-			Zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
+			Internetová zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
 			mohou nabývat US-ASCII hodnot 1-127.
 
-
-			Zpráva je rozdìlena
-			podle øádkù. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
+			Zprávu tvoøí jednotlivé øádky. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
 			CR (ASCII hodnota 13) a LF (ASCII hodnota 10).
 
 			Zpráva se dále skládá z hlavièky, po které mù¾e následovat tìlo.

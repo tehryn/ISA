@@ -232,15 +232,9 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 		if ( idx == string::npos ) { // if not - continue
 			continue;
 		}
-		if ( message.size() < 4 ) { // detecting minimum size of message
-			command = "ERROR";
-		}
-		else {
-			// converting all to uppercase
-			command = message;
-			for( int i = 0; i < 4; i++ ) {
-				command[i] = toupper( message[i], loc );
-			}
+		command = message;
+		for( int i = 0; message[i] != ' ' && message[i] != '\r'; i++ ) {
+			command[i] = toupper( message[i], loc );
 		}
 		// parsing all of commands
 		if ( !strncmp(command.c_str(), "USER", 4 ) ) {
