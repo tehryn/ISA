@@ -19,6 +19,8 @@ private:
 	/// total size of directory
 	size_t total_size     = 0;
 
+	size_t files_count    = 0;
+
 	/// string representation of information about directory (for list command)
 	std::string dir_info  = "";
 
@@ -68,6 +70,7 @@ public:
 			for ( size_t i = 0; i < filenames.size(); i++ ) {
 				Mail_file file( &filenames[i], sizes[i] );
 				total_size += file.get_size();
+				files_count++;
 				files.push_back( file );
 			}
 			this->valide = true;
@@ -125,7 +128,7 @@ public:
 	 * @return number of messages
 	 */
 	size_t get_num_of_msg() const {
-		return files.size(); // TODO
+		return files_count;
 	}
 
 	/**
@@ -138,6 +141,7 @@ public:
 		if ( idx >= 0 ) {
 			files[ idx ].del();
 			total_size -= files[ idx ].get_size();
+			files_count--;
 			dir_info = "";
 			dir_uids = "";
 			return false;
@@ -231,6 +235,7 @@ public:
 			if ( f.is_deleted()) {
 				f.undel();
 				total_size += f.get_size();
+				files_count++;
 			}
 		}
 		dir_info = "";

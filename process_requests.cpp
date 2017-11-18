@@ -94,7 +94,7 @@ std::string process_user( const std::string * request, unsigned * state, const s
 		}
 	}
 	else {
-		response = "-ERR User has been alreadt specified.";
+		response = "-ERR User has been already specified.";
 	}
 	return response;
 }
