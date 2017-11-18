@@ -136,14 +136,14 @@ ENTRY
 % Celocislene promenne. U kazde (krome konstant, ktere jsou pouze inicializovany
 % ve funkci init.state.consts -- before.all, mid.sentence, after.sentence,
 % after.block) jsou vyjmenovany funkce, kde dochazi ke zmenam dane promenne.
-% 
+%
 % output.state -- output.nonnull, output.bibitem, new.block, new.sentance
-% 
+%
 % ord -- is.ord
-% 
+%
 % ptr, i, x -- str.to.int
 %
-% numnames, namesleft, nameptr -- format.names, format.names.ed, 
+% numnames, namesleft, nameptr -- format.names, format.names.ed,
 %                                 sort.format.names
 INTEGERS { output.state before.all mid.sentence after.sentence after.block
            ord ptr i x numnames namesleft nameptr }
@@ -152,10 +152,10 @@ INTEGERS { output.state before.all mid.sentence after.sentence after.block
 %
 % s -- output.nonnull, format.names, format.names.ed, format.journal.issue,
 %      format.thesis.info, format.thesis.range, chop.word, sort.format.names
-% 
+%
 % t -- output.check, dashify, str.to.int, format.names, format.names.ed,
 %      format.full.date, sort.format.names, sort.format.title
-% 
+%
 % u -- is.ord, tie.or.connnect, comma.connect
 STRINGS { s t u }
 
@@ -192,7 +192,7 @@ MACRO {dec} {"prosinec"}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Inicializace konstant nutnych pro spravnou funkci samotneho stylu.
-% 
+%
 % void init.state.consts ()
 % {
 %   int before.all = 0;
@@ -211,7 +211,7 @@ FUNCTION {init.state.consts}
 % ovlivnen vystupnim stavem (tj. stavovou promennou output.state). Samotny
 % vystup je zpozdeny (k vytisteni aktualni hodnoty dojde az pri pristim volani
 % teto funkce) kvuli rozhodovani o pouzitem oddelovaci (carka nebo tecka).
-% 
+%
 % void output.nonnull ()
 % {
 %   s = pop();
@@ -240,7 +240,7 @@ FUNCTION {init.state.consts}
 % }
 FUNCTION {output.nonnull}
 { 's :=
-  output.state mid.sentence =          
+  output.state mid.sentence =
   { " " * write$ }                %% Uprava: Nahrada ", " za " "!
   {  output.state after.block =
     { add.period$ write$
@@ -261,7 +261,7 @@ FUNCTION {output.nonnull}
 
 % Pri vyskytu neprazdne hodnoty na vrcholu zasobniku provede jeji vystup pomoci
 % funkce output.nonnull. V opacnem pripade ji jen odstrani ze zasobniku.
-% 
+%
 % /** prepis do pseudokodu bez vyuziti zasobniku **/
 % void output (string string.to.write)
 % {
@@ -282,13 +282,13 @@ FUNCTION {output}
 % funkce output.nonnull. V opacnem pripade ji jen odstrani ze zasobniku
 % a vypise na chybovy vystup varovani o chybejici hodnote. Pouziva se pro
 % informovani uzivatele o chybejici hodnote, ktera je dle ceske normy povinna.
-% 
+%
 % /** prepis do pseudokodu bez vyuziti zasobniku **/
 % void output.check (string type.of.field string string.to.write)
 % {
 %   t = type.of.field;
 %   if (empty$(string.to.write))
-%   { 
+%   {
 %     warning$("empty" * t * " in " * cite$())
 %   } else
 %   {
@@ -304,7 +304,7 @@ FUNCTION {output.check}
 }
 
 % Vypise zacatek bibliograficke citace.
-% 
+%
 % void output.bibitem ()
 % {
 %   newline$();
@@ -326,7 +326,7 @@ FUNCTION {output.bibitem}
 }
 
 % Zakonceni polozky (teckou).
-% 
+%
 % void fin.entry ()
 % {
 %   write(add.period$(pop()));
@@ -338,7 +338,7 @@ FUNCTION {fin.entry}
 }
 
 % Zmena stavu: {mid.sentence; after.sentence} => after.block.
-% 
+%
 % void new.block ()
 % {
 %   if (output.state == before.all)
@@ -355,7 +355,7 @@ FUNCTION {new.block}
 }
 
 % Zmena stavu: mid.sentence => after.sentence.
-% 
+%
 % void new.sentence ()
 % {
 %   if (output.state == after.block)
@@ -380,7 +380,7 @@ FUNCTION {new.sentence}
 }
 
 % Negace vyhodnocene podminky.
-% 
+%
 % int not (int bool)
 % {
 %   if (bool)
@@ -395,14 +395,14 @@ FUNCTION {not}
 { { #0 }
   { #1 }
   if$
-}  
+}
 
 % Logicky soucin dvou podminek.
-% 
+%
 % int and (int bool1, int bool2)
 % {
 %   if (bool2)
-%   { 
+%   {
 %     return bool1;
 %   } else
 %   {
@@ -416,11 +416,11 @@ FUNCTION {and}
 }
 
 % Logicky soucet dvou podminek.
-% 
+%
 % int or (int bool1, int bool2)
 % {
 %   if (bool2)
-%   { 
+%   {
 %     return 1;
 %   } else
 %   {
@@ -434,7 +434,7 @@ FUNCTION {or}
 }
 
 % Zacatek noveho bloku pri neprazne hodnote na vrcholu zasobniku.
-% 
+%
 % void new.block.checka (int.or.string anything.from.the.top)
 % {
 %   if (empty$(anything.from.the.top))
@@ -451,7 +451,7 @@ FUNCTION {new.block.checka}
 }
 
 % Zacatek noveho bloku pri 2 neprazdnych hodnotach z vrcholu zasobniku.
-% 
+%
 % void new.block.checkb (int.or.string anything.under.the.top,
 %                           int.or.string anything.from.the.top)
 % {
@@ -471,7 +471,7 @@ FUNCTION {new.block.checkb}
 }
 
 % Zacatek nove vety pri neprazne hodnote na vrcholu zasobniku.
-% 
+%
 % void new.sentence.checka (int.or.string anything.from.the.top)
 % {
 %   if (empty$(anything.from.the.top))
@@ -488,7 +488,7 @@ FUNCTION {new.sentence.checka}
 }
 
 % Zacatek nove vety pri 2 neprazdnych hodnotach z vrcholu zasobniku.
-% 
+%
 % void new.sentence.checkb (int.or.string anything.under.the.top,
 %                           int.or.string anything.from.the.top)
 % {
@@ -507,13 +507,13 @@ FUNCTION {new.sentence.checkb}
 }
 
 % Vrati hodnoty polozky (ulozene na vrcholu zasobniku) nebo prazdny retezec.
-% 
+%
 % int.or.string field.or.null (int.or.string anything.from.the.top)
 % {
 %   if (empty$(anything.from.the.top))
 %   {
 %     return "";
-%   } else 
+%   } else
 %   {
 %     return anything.from.the.top;
 %   }
@@ -529,7 +529,7 @@ FUNCTION {field.or.null}
 % pouziti se vzajemne vylucuje. Vola se s dvema argumenty -- prvni z nich je
 % retezec s nazvy obou poli (kvuli vypisu chybove hlasky) a druhy je obsah
 % jednoho z poli (kontrola druheho musi probehnout pred volanim teto funkce).
-% 
+%
 % void either.or.check (string field.names, int.or.string one.of.fields)
 % {
 %   if (empty$(one.of.fields))
@@ -547,11 +547,11 @@ FUNCTION {either.or.check}
 
 % Provede zvyrazneni hodnoty na vrcholu zasobniku (uzavre ji mezi "{\em"
 % a "}"). Nepouziva kurzivni korekci.
-% 
+%
 % string emphasize (string x)
 % {
 %   if (empty$(x))
-%   { 
+%   {
 %     return "";
 %   } else
 %   {
@@ -625,7 +625,7 @@ FUNCTION {dashify}
 
 % Prevod retezce na cislo. Ocekava se, ze se zavola az po testu pomoci funkce
 % 'is.ord'. Na vstupu ocekava neprazdny retezec tvoreny jen cislicemi.
-% 
+%
 % int str.to.int (string to.convert)
 % {
 %   t = to.convert;
@@ -665,7 +665,7 @@ FUNCTION {str.to.int}
 }
 
 % Prvni pismeno retezce na vrcholu zasobniku prevede na verzalku.
-% 
+%
 % string capitalize (string to.capitalize)
 % {
 %   if (empty$(to.capitalize))
@@ -687,10 +687,10 @@ FUNCTION {capitalize}
 % Spojuje dva retezce z vrcholu zasobniku. Tyto dva retezce jsou oddeleny
 % mezerou ci nezlomitelnou mezerou. Retezec na vrcholu zasobniku je pripojen
 % za druhy retezec.
-% 
+%
 % Pokud je jeden z retezcu prazdny, je vracen jen druhy z nich bez jakychkoliv
 % uprav. Jsou-li prazdne oba retezce, je vracen taktez prazdny retezec.
-% 
+%
 % string tie.or.connect (string under.the.top, string from.the.top)
 % {
 %   string u = from.the.top;
@@ -730,10 +730,10 @@ FUNCTION {tie.or.connect}
 
 % Spojuje dva retezce z vrcholu zasobniku. Tyto dva retezce jsou oddeleny
 % carkou. Retezec na vrcholu zasobniku je pripojen za druhy retezec.
-% 
+%
 % Pokud je jeden z retezcu prazdny, je vracen jen druhy z nich bez jakychkoliv
 % uprav. Jsou-li prazdne oba retezce, je vracen taktez prazdny retezec.
-% 
+%
 % string comma.connect (string under.the.top, string from.the.top)
 % {
 %   string u = from.the.top;
@@ -762,14 +762,14 @@ FUNCTION {comma.connect}
 }
 
 % Otestuje, zda je hodnota na vrcholu zasobniku tvorena pouze cislicemi.
-% 
+%
 % int is.ord (string x)
 % {
 %   string u = x;
 %   int ord = 1;
 %   while ( (ord) && (!empty(u)) )
 %   {
-%     if ( (chr.to.int$(substring$(u, 1, 1)) < 48) || 
+%     if ( (chr.to.int$(substring$(u, 1, 1)) < 48) ||
 %          (chr.to.int$(substring$(u, 1, 1)) > 57) )
 %     {
 %       ord = 0;
@@ -810,8 +810,8 @@ FUNCTION {cz.name.format}
 { "{{\sc\bgroup}ll{ }{\egroup}}{, f.}{ vv}" }
 
 % Vraci nominativ mesice.
-% 
-% /** prepis pseudokodu do funkce pracujici s polem **/ 
+%
+% /** prepis pseudokodu do funkce pracujici s polem **/
 % string get.month.n (int n)
 % {
 %   int month = { 1 => "leden", "únor", "březen", "duben", "květen", "červen",
@@ -877,8 +877,8 @@ FUNCTION {get.month.n}
 }
 
 % Vraci genitiv mesice.
-% 
-% /** prepis pseudokodu do funkce pracujici s polem **/ 
+%
+% /** prepis pseudokodu do funkce pracujici s polem **/
 % string get.month.n (int n)
 % {
 %   int month = { 1 => "ledna", "února", "března", "dubna", "května", "června",
@@ -949,7 +949,7 @@ FUNCTION {get.month.g}
 %
 % Pouzivat pouze na zacatku bibliograficke citace! Jinde muze zpusobit prohozeni
 % prvku.
-% 
+%
 % void output.authors (string formatted.authors)
 % {
 %   if (substring$(formatted.authors, #-1, #1) == opt.sep.a())
@@ -968,7 +968,7 @@ FUNCTION {output.authors}
 {
   duplicate$ #-1 #1 substring$ opt.sep.a =
   { write$ newline$ "\newblock " write$ }
-  { opt.sep.a * 
+  { opt.sep.a *
     write$ newline$ "\newblock " write$
   }
   if$
@@ -979,7 +979,7 @@ FUNCTION {output.authors}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Formatovani jmen (pro primarni odpovednost).
-% 
+%
 % string format.names (string names)
 % {
 %   string s = names;
@@ -1015,7 +1015,7 @@ FUNCTION {output.authors}
 %   {
 %     push(tie.or.connect(pop(), opt.etal()));
 %   }
-%   return pop(); 
+%   return pop();
 % }
 FUNCTION {format.names}
 { 's :=                             % s <= polozka se jmeny
@@ -1032,7 +1032,7 @@ FUNCTION {format.names}
     { t }                           % prvni jmeno
     { namesleft #1 >                % dalsi jmena
       { opt.sep.bn t * * }
-      { t purify$ 
+      { t purify$
         "others" =                  % kdyz po ocisteni zbyde klic. sl. "others"
         { opt.etal tie.or.connect } % vytiskne et al.
         { opt.sep.ln * t * }        % jinak posledni inicialy po spojce "a"
@@ -1052,7 +1052,7 @@ FUNCTION {format.names}
 }
 
 % Formatovani jmen editoru.
-% 
+%
 % string format.names.ed (string names)
 % {
 %   string s = names;
@@ -1108,7 +1108,7 @@ FUNCTION {format.names}
 %   }
 %   if (opt.ed.all())
 %   {
-%     return pop(); 
+%     return pop();
 %   } else
 %   {
 %     return tie.or.connect(pop(), opt.ed());
@@ -1139,7 +1139,7 @@ FUNCTION {format.names.ed}
         'skip$
         if$
       }
-      { t purify$ 
+      { t purify$
         "others" =                  % kdyz po ocisteni zbyde klic. sl. "others"
         { opt.etal tie.or.connect } % vytiskne et al.
         { opt.sep.ln t * *          % jinak posledni inicialy po spojce "a"
@@ -1170,7 +1170,7 @@ FUNCTION {format.names.ed}
 % Formatovani jmen autoru.
 % Pokud je neprazdna polozka 'author', provede formatovani jmen pomoci funkce
 % 'format.names'.
-% 
+%
 % string format.authors ()
 % {
 %   if (empty$(author))
@@ -1190,8 +1190,8 @@ FUNCTION {format.authors}
 
 % Formatovani jmen editoru.
 % Pokud je neprazdna polozka 'editor', provede formatovani jmen pomoci funkce
-% 'format.names.ed'. 
-% 
+% 'format.names.ed'.
+%
 % string format.editors ()
 % {
 %   if (empty$(editor))
@@ -1213,7 +1213,7 @@ FUNCTION {format.editors}
 % Je-li zadana polozka 'author', provede jeji formatovani pomoci funkce
 % 'format.authors'. Pokud je polozka 'author' prazdna, provede formatovani
 % pomoci funkce 'format.editors'.
-% 
+%
 % void author.or.editor ()
 % {
 %   if (empty$(author))
@@ -1249,7 +1249,7 @@ FUNCTION {author.or.editor}
 % Formatovani nazvu (napr. casopisu, zurnalu atp.).
 % Pri zadane polozce 'subtitle' provede ji pripoji k obsahu polozky 'title'
 % pomoci ": ". V nazvu je pak provedena zmena velikosti pismen.
-% 
+%
 % string format.title ()
 % {
 %   if (empty$(subtitle))
@@ -1274,7 +1274,7 @@ FUNCTION {format.title}
 % pomoci ": ". Pricemz na obe casti se provede zmena velikosti pismen
 % a zvyrazneni. Pokud je polozka 'subtitle' prazdna, je provedena jen zmena
 % velikosti pismen a jeji zvyrazneni.
-% 
+%
 % string format.btitle ()
 % {
 %   return emphasize(format.title());
@@ -1287,7 +1287,7 @@ FUNCTION {format.btitle}
 % Pri zadane polozce 'booksubtitle' provede ji pripoji k obsahu polozky
 % 'booktitle' pomoci ": ". V nazvu je pak provedena zmena velikosti pismen
 % a zvyrazneni kurzivou.
-% 
+%
 % string format.from.btitle ()
 % {
 %   if (empty$(booktitle))
@@ -1308,7 +1308,7 @@ FUNCTION {format.btitle}
 FUNCTION {format.from.btitle}
 { booktitle empty$
   { "empty booktitle in " cite$ * warning$
-    "" 
+    ""
   }
   { booktitle capitalize
     booksubtitle empty$
@@ -1321,11 +1321,11 @@ FUNCTION {format.from.btitle}
 }
 
 % Formatovani druhu nosice.
-% 
+%
 % string format.howpublished ()
 % {
 %   if (empty$(howpublished))
-%   { 
+%   {
 %     return "";
 %   } else
 %   {
@@ -1362,11 +1362,11 @@ FUNCTION {format.howpublished}
 }
 
 % Formatovani vydani
-% 
+%
 % string format.edition ()
 % {
 %   if (empty$(edition))
-%   { 
+%   {
 %     push("");
 %   } else
 %   {
@@ -1404,7 +1404,7 @@ FUNCTION {format.edition}
 }
 
 % Formatovani mesice a roku
-% 
+%
 % string format.date ()
 % {
 %   if (empty$(month))
@@ -1455,14 +1455,14 @@ FUNCTION {format.date}
 }
 
 % Rozpoznani a prevod data z formatu '!yyyy-mm-dd'.
-% 
+%
 % string format.full.date (string date)
 % {
 %   string t = date;
 %   if (text.length$(t) == 10)
 %   {
-%     if ( (is.ord(substring$(t, 1, 4))) && (substring$(t, 5, 1) == "-") && 
-%          (is.ord(substring$(t, 6, 2))) && (substring$(t, 8, 1) == "-") && 
+%     if ( (is.ord(substring$(t, 1, 4))) && (substring$(t, 5, 1) == "-") &&
+%          (is.ord(substring$(t, 6, 2))) && (substring$(t, 8, 1) == "-") &&
 %          (is.ord(substring$(t, 9, 2))) )
 %     {
 %       if (substring$(t, 9, 1) == "0")
@@ -1475,7 +1475,7 @@ FUNCTION {format.date}
 %       } else
 %       {
 %         if ( ((chr.to.int$(substring$(t, 9, 1)) - 48) > 3) ||
-%              ((substring$(t, 9, 1) == "3") && 
+%              ((substring$(t, 9, 1) == "3") &&
 %               ((chr.to.int$(substring$(t, 10, 1)) - 48) > 1)) )
 %         {
 %           pop();
@@ -1491,14 +1491,14 @@ FUNCTION {format.date}
 %           pop();
 %           push(t);
 %           warning$("month must be between 1 and 12 in " * cite$());
-%         } else 
+%         } else
 %         {
 %           return pop() * get.month.g(chr.to.int$(substring$(t, 7, 1)) - 48) *
 %                  " " * substring$(t, 1, 4));
 %         }
 %       } else
 %       {
-%         if ( (substring$(t, 6, 1) == "1") && 
+%         if ( (substring$(t, 6, 1) == "1") &&
 %              ((chr.to.int$(substring$(t, 7, 1)) - 48) < 3) )
 %         {
 %           return pop() * get.month.g(chr.to.int$(substring$(t, 7, 1))
@@ -1532,7 +1532,7 @@ FUNCTION {format.full.date}
     { t #10 #1 substring$ "0" =
       { t #11 #1 substring$ "0" =
         { "day must be between 1 and 31 in " cite$ * warning$ }
-        'skip$ 
+        'skip$
         if$
         t #11 #1 substring$ ".~" *
       }
@@ -1549,7 +1549,7 @@ FUNCTION {format.full.date}
       t #7 #1 substring$ "0" =
       { t #8 #1 substring$ "0" =
         { pop$ t "month must be between 1 and 12 in " cite$ * warning$ }
-        { t #8 #1 substring$ chr.to.int$ #48 - get.month.g * 
+        { t #8 #1 substring$ chr.to.int$ #48 - get.month.g *
           " " * t #2 #4 substring$ *
         }
         if$
@@ -1636,7 +1636,7 @@ FUNCTION {format.cited}
 }
 
 % Formatovani nakladatelskych udaju.
-% 
+%
 % string format.publish.info ()
 % {
 %   if ( (empty$(address)) && (empty$(publisher)) )
@@ -1680,11 +1680,11 @@ FUNCTION {format.publish.info}
 }
 
 % Formatuje rozsah stran publikace.
-% 
+%
 % string format.range ()
 % {
 %   if (empty$(pages))
-%   { 
+%   {
 %     return "";
 %   } else
 %   {
@@ -1699,12 +1699,12 @@ FUNCTION {format.range}
 }
 
 % Formatovani edice a svazku monograficke publikace.
-% 
+%
 % string format.bvolume ()
 % {
 %   if (empty$(series))
 %   {
-%     return ""; 
+%     return "";
 %   } else
 %   {
 %     push(capitalize(series));
@@ -1758,12 +1758,12 @@ FUNCTION {format.bvolume}
 }
 
 % Format dostupnosti.
-% 
+%
 % string format.url ()
 % {
 %   if (empty$(url))
 %   {
-%     return ""; 
+%     return "";
 %   } else
 %   {
 %     return tie.or.connect(opt.url(), "\url{"Dostupné na: <" * url * ">.}");
@@ -1777,12 +1777,12 @@ FUNCTION {format.url}
 }
 
 % Format ISBN.
-% 
+%
 % string format.isbn ()
 % {
 %   if (empty$(isbn))
 %   {
-%     return ""; 
+%     return "";
 %   } else
 %   {
 %     return "ISBN " * isbn;
@@ -1796,12 +1796,12 @@ FUNCTION {format.isbn}
 }
 
 % Format nazvu serialove publikace.
-% 
+%
 % string format.journal ()
 % {
 %   if (empty$(journal))
 %   {
-%     return ""; 
+%     return "";
 %   } else
 %   {
 %     return emphasize(journal);
@@ -1815,12 +1815,12 @@ FUNCTION {format.journal}
 }
 
 % Format nazvu lokace ve zdrojovem dokumentu.
-% 
+%
 % string format.pages ()
 % {
 %   if (empty$(pages))
 %   {
-%     return ""; 
+%     return "";
 %   } else
 %   {
 %     return "s.~" * dashify(pages);
@@ -1835,7 +1835,7 @@ FUNCTION {format.pages}
 
 % Formatovani data vydani, rocniku a cisla publikace + datum revize/aktualizace
 %   + darum citace + lokace ve zdrojovem dokumentu (rozsah stran).
-% 
+%
 % string format.journal.issue ()
 % {
 %   string s;
@@ -1905,19 +1905,19 @@ FUNCTION {format.journal.issue}
   if$
   s empty$
   { "empty journal issue info in " cite$ * warning$
-    "" 
+    ""
   }
   { s }
   if$
 }
 
 % Format ISSN.
-% 
+%
 % string format.issn ()
 % {
 %   if (empty$(issn))
 %   {
-%     return ""; 
+%     return "";
 %   } else
 %   {
 %     return "ISBN " * issn;
@@ -1931,7 +1931,7 @@ FUNCTION {format.issn}
 }
 
 % Formatuje cislo svazku -- presne urceni casti pro @InBook.
-% 
+%
 % string format.vol ()
 % {
 %   if (empty$(volume))
@@ -1965,9 +1965,9 @@ FUNCTION {format.vol}
 % bibliograficke citaci clanku ve sborniku.
 %
 % In <primarni odpovendost> opt.sep.a() <titul sborniku>.
-% 
+%
 % Pokud je <titlu sborniku> prazdny, netiskne se nic.
-% 
+%
 % void conference.basics ()
 % {
 %   if (empty$(editor))
@@ -2017,7 +2017,7 @@ FUNCTION {conference.basics}
       duplicate$ #-1 #1 substring$ opt.sep.a =
       'skip$
       { opt.sep.a * }
-      if$ 
+      if$
     }
     if$
   }
@@ -2025,7 +2025,7 @@ FUNCTION {conference.basics}
     duplicate$ #-1 #1 substring$ opt.sep.a =
     'skip$
     { opt.sep.a * }
-    if$ 
+    if$
   }
   if$
   "In" swap$ tie.or.connect
@@ -2038,7 +2038,7 @@ FUNCTION {conference.basics}
 
 % Formatuje informace o akademicke (diplomova, dizertacni atp.) praci.
 % Odlisuje se od beznych nakladatelskych informaci pouzitymi polozkami.
-% 
+%
 % string format.thesis.info ()
 % {
 %   string s = "";
@@ -2115,7 +2115,7 @@ FUNCTION {format.thesis.info}
 }
 
 % Formatuje pocet stran a priloh u akademickych praci.
-% 
+%
 % string format.thesis.range ()
 % {
 %   if ( (empty$(format.range())) && (!empty$(inserts)) )
@@ -2148,7 +2148,7 @@ FUNCTION {format.thesis.range}
 }
 
 % Formatuje typ akademicke prace.
-% 
+%
 % string format.thesis.type (string basic.thesis.type)
 % {
 %   if (empty$(type))
@@ -2167,7 +2167,7 @@ FUNCTION {format.thesis.type}
 }
 
 % Fromatuje typ a cislo technicke zpravy
-% 
+%
 % string format.report.type ()
 % {
 %   if (empty$(type))
@@ -2200,7 +2200,7 @@ FUNCTION {format.report.type}
 }
 
 % Kontrola prazdnosti vsech policek pouzitych pro @MISC zaznam.
-% 
+%
 % int empty.misc.check ()
 % {
 %   if ( (empty$(author)) && (empty$(title)) && (empty$()) &&
@@ -2227,7 +2227,7 @@ FUNCTION {empty.misc.check}
 }
 
 % Formatuje misto a instituci technicke zpravy.
-% 
+%
 % string format.report.details ()
 % {
 %   if ( empty$(address) && empty$(institution) )
@@ -2274,11 +2274,11 @@ FUNCTION {format.report.details}
 
 % Zpracuje zaznamy typu @Article.
 % Bibliograficke citace clanku v serialovych publikaci (casopiseckych clanku).
-% 
+%
 % Povinne polozky:   author, title, journal, edition, year, number, pages
 % Volitelne polozky: subtitle, contrybutory, url*, month, volume, note, issn
 % Polozky el. dok.:  howpublished*, revised*, cited*, version
-% 
+%
 % * Povinna polozka pro el. dok.
 FUNCTION {article}
 { output.bibitem
@@ -2326,12 +2326,12 @@ FUNCTION {article}
 
 % Zpracuje zaznamy typu @Book.
 % Bibliograficke citace monografickych publikaci (knih).
-% 
+%
 % Povinne polozky:   author nebo editor, title, edition, year, isbn
-% Volitelne polozky: subtitle, contrybutory, address, publisher, month, 
+% Volitelne polozky: subtitle, contrybutory, address, publisher, month,
 %       pages, series, number nebo volume, note, url*
 % Polozky el. dok.:  howpublished*, revised*, cited*, version
-% 
+%
 % * Povinna polozka pro el. dok.
 FUNCTION {book}
 { output.bibitem
@@ -2375,13 +2375,13 @@ FUNCTION {book}
 
 % Zpracuje zaznamy typu @Conference a @InProceedings.
 % Bibliograficke citace monografickych publikaci (knih).
-% 
+%
 % Povinne polozky:   author, title, editor nebo organization, booktitle,
 %       edition, year, pages, isbn or issn.
 % Volitelne polozky: subtitle, booksubtitle, address, publisher, month, series,
 %       number nebo volume, note, url*.
 % Polozky el. dok.:  howpublished*, revised*, cited*, version.
-% 
+%
 % * Povinna polozka pro el. dok.
 FUNCTION {conference}
 { output.bibitem
@@ -2393,7 +2393,7 @@ FUNCTION {conference}
   { output.authors }
   if$
   new.block %% primarni odpovednost (povinna)
-  format.title "title" output.check 
+  format.title "title" output.check
   new.block %% titul prispevku
   conference.basics
   format.howpublished tie.or.connect output
@@ -2441,9 +2441,9 @@ FUNCTION {inproceedings} { conference }
 % Zpracuje zaznamy typu @Misc.
 % Vhodne pouziti napr. pro bibliograficke citace online dokumentu a webovych
 % stranek.
-% 
+%
 % Povinne polozky:   Alespon jedna z volitelnych!
-% Volitelne polozky: author, title, subtitle, howpublished, edition, month, 
+% Volitelne polozky: author, title, subtitle, howpublished, edition, month,
 %       year, revised*, cited, note, url, version
 %
 % Pozn.: Protestuje, pokud neni vyplneny rok. Nemel by tedy volat format.date...
@@ -2488,13 +2488,13 @@ FUNCTION {misc}
 
 % Zpracuje zaznamy typu @InBook.
 % Bibliograficke citace kapitoly ci rozsahu stran v monografii.
-% 
+%
 % Povinne polozky:   author nebo editor, title, edition, volume, year,
 %       pages a/nebo chapter
-% Volitelne polozky: subtitle, contrybutory, address, publisher, month, 
+% Volitelne polozky: subtitle, contrybutory, address, publisher, month,
 %       note, url*, isbn
 % Polozky el. dok.:  howpublished*, revised*, cited*, version
-% 
+%
 % * Povinna polozka pro el. dok.
 FUNCTION {inbook}
 { output.bibitem
@@ -2583,9 +2583,9 @@ FUNCTION {techreport}
 
 % Zpracuje zaznamy typu @BachelorThesis, @MasterThesis a @PhdThesis.
 % Bibliograficke citace akademickych praci (bakalarske, diplomove a dizertacni).
-% 
+%
 % Zakladni verze -- v choose.thesis ma hodnotu #0.
-% 
+%
 % Povinne polozky:   author, title, address, school, year
 % Volitelne polozky: subtitle, pages, inserts, type, note, url, isbn
 FUNCTION {thesis}
@@ -2624,7 +2624,7 @@ FUNCTION {thesis}
 }%@BachelorThesis, @MasterThesis a @PhdThesis
 
 % Dalsi funkce pro vytvoreni bibliografickych citaci akademickych praci.
-% 
+%
 % Jina verze -- v choose.thesis ma hodnotu #1.
 FUNCTION {another.thesis}
 { output.bibitem
@@ -2878,7 +2878,7 @@ EXECUTE {initialize.longest.label}
 ITERATE {longest.label.pass}
 
 % Tato funkce se stara o prvni radky, ktere se objevi ve vystupnim souboru.
-% 
+%
 % Tato funkce je rozsirena o podminenou definici prikazu \url{}.
 FUNCTION {begin.bib}
 { "\makeatletter" write$ newline$
