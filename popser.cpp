@@ -90,7 +90,7 @@ void reverse_all() {
 	for( string & filename:records ) {
 		if ( old_file.size() ) {
 			if ( rename( old_file.c_str(), filename.c_str() ) ) {
-				cerr << "WARNING: Cannot rename file " << old_file << " to " << filename << endl;
+				//cerr << "WARNING: Cannot rename file " << old_file << " to " << filename << endl;
 			}
 			old_file = "";
 		}
@@ -102,19 +102,19 @@ void reverse_all() {
 	remove( JOURNAL_NAME ); // and just remove journal file
 }
 
-// moves files from cur to new
+// moves files from new to cur
 bool move_files( const std::string * directory ) {
 	vector<string> files;
 	string new_dir = *directory;
 	string cur_dir = *directory;
 	// making sure that / is at the end
 	if ( new_dir[ new_dir.size() - 1 ] == '/' ) {
-		new_dir += "new/";
-		cur_dir += "cur/";
+		new_dir += "cur/";
+		cur_dir += "new/";
 	}
 	else {
-		new_dir += "/new/";
-		cur_dir += "/cur/";
+		new_dir += "/cur/";
+		cur_dir += "/new/";
 	}
 	// reading content of directory into vector
 	if ( read_dir( &cur_dir, &files, false ) ) {

@@ -63,7 +63,7 @@ public:
 		if ( ( this->directory )[ this->directory.size() - 1 ] != '/' ) {
 			this->directory += '/';
 		}
-		this->directory += "new/";
+		this->directory += "cur/";
 		std::vector<std::string> filenames;
 		std::vector<size_t> sizes;
 		if ( !read_dir( &this->directory, &filenames, true, &sizes ) ) {
