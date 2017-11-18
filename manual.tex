@@ -165,6 +165,40 @@
 		Program je pøekládán pomocí pøekladaèe g++ a~pro pøeklad slou¾í soubor
 		Makefile.
 
+	\section{Návod k pou¾ití}
+		V této èásti dokuemtu je uveden návod k pou¾ítí a pár pøíkladu u¾ití.
+		\subsection{Pøeklad aplikace}
+			Aplikaci lze pøelo¾it pøíkazem make ve slo¾ce se souborem Makefile.
+		\subsection{Spu¹tìní serveru}
+			Server má 3 re¾imy spu¹tìní.
+			\begin{itemize}
+				\item{ ./popser -r }
+				\item{ ./popser -h }
+				\item{ ./popser -a AUTH_FILE -d MAILDIR -p PORT [ -c ] [ -r ] }
+			\end{itemize}
+			Argument -h vypí¹e struèný návod k obsluze programu. Argument -r uvede
+			slo¾ku Maildir do pùvodního stavu (kromì obnovení smazaných emailù).
+			AUTH_FILE je cesta k souboru s u¾ivatelským jménem a heslem. MAILDIR
+			je cesta ke slo¾ce, která obsahuje minimálnì slo¾ky new a cur. S touto
+			slo¾kou bude následnì popser pracovat. PORT je èíslo portu, na kterém
+			se budou moci pøipojit klienti. Pokud je zadám parametr -c, tak se
+			se pøihla¹ovací údaje zadávají pomocí USER a PASS a heslo je na síti
+			pøená¹eno ne¹ifrovanì. Pokud -c zadán není, autorizace probíhá pomocí
+			pøíkazu APOP.
+		\subsection{Pøíklady}
+			\begin{\begin{itemize}
+				\item {popser -a ./user.txt -p 8888 -d ./Maildir/}
+			\end{itemize}}
+			Ze souboru ./user.txt budou naèteny u¾ivatelské údaje. Ve slo¾ce ./Maildir/
+			budou oèekávany slo¾ky cur a new ve kterých se budou nacházet soubory
+			reprezentující emaily. Na portu 8888 bude probíhat komunikace a k
+			autorizovat se bude muset u¾ivatel pomocí pøíkazu APOP.
+
+			\end{\begin{itemize}
+				\item {popser -r}
+			\end{itemize}}
+			Soubor uvede Maildir zvrátí ve¹keré operace se soubory (kromì odstranìní).
+
 	\section{Závìr}
        Aplikaci popser lze pou¾ít jako POP3 server pro správu jediného úètu. Jsou
 	   v~nìm implementovány v¹echny povinné i volitelné funkcionality a~byl vyvynut

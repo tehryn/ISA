@@ -94,7 +94,8 @@ std::string process_user( const std::string * request, unsigned * state, const s
 		}
 	}
 	else {
-		response = "-ERR User has been already specified.";
+		response = "-ERR User has been already specified and now for the real fun, you must enter it again.";
+		*state = STATE_START;
 	}
 	return response;
 }
