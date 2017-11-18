@@ -39,6 +39,15 @@ private:
 	 * @return    -1 if file does not exists otherwise index
 	 */
 	long int get_true_index ( size_t id ) const {
+		id--;
+		if ( id < files.size() ) {
+			return files[id].is_deleted() ? -1 : id;
+		}
+		else {
+			return -1;
+		}
+	/*
+		// old and invalid!
 		if ( files.size() == 0 ) {
 			return -1;
 		}
@@ -51,7 +60,7 @@ private:
 			idx++;
 		}
 		DEBUG_LINE( ( static_cast<size_t>( idx ) < files.size() ) ? idx : -1 );
-		return ( static_cast<size_t>( idx ) < files.size() ) ? idx : -1;
+		return ( static_cast<size_t>( idx ) < files.size() ) ? idx : -1; */
 	}
 public:
 	/**
@@ -160,8 +169,9 @@ public:
 			size_t id = 1;
 			for ( const Mail_file & file: files ) {
 				if ( file.is_deleted() == false ) {
-					dir_info += std::to_string( id++ ) + " " + std::to_string( file.get_size() ) + "\r\n";
+					dir_info += std::to_string( id ) + " " + std::to_string( file.get_size() ) + "\r\n";
 				}
+				id++;
 			}
 		}
 		return dir_info;
