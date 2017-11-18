@@ -66,6 +66,7 @@ std::string process_pass( const std::string * request, unsigned * state, const s
 		}
 		else {
 			response = "-ERR No! It's not you! (Wrong password)";
+			*state   = STATE_START;
 		}
 	}
 	return response;
