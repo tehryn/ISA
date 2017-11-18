@@ -4,6 +4,9 @@
 \usepackage{graphicx}
 \usepackage[czech]{babel}
 \usepackage[latin2]{inputenc}
+\bibliographystyle{czplain}
+\usepackage{etoolbox}
+\apptocmd{\thebibliography}{\raggedright}{}{}
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{1em}
 
@@ -60,15 +63,15 @@
 
 		\subsection{IMF - Internet message format}
 			Internetová zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
-			mohou nabývat US-ASCII hodnot 1-127.
+			mohou nabývat US-ASCII hodnot 1-127.\cite{web:imf}
 
 			Zprávu tvoøí jednotlivé øádky. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
-			CR (ASCII hodnota 13) a LF (ASCII hodnota 10).
+			CR (ASCII hodnota 13) a LF (ASCII hodnota 10).\cite{web:imf}
 
 			Zpráva se dále skládá z hlavièky, po které mù¾e následovat tìlo.
 			Hlavièka je sekvence øádkù. Na ka¾dém øádku hlavièky je název pole
 			a jeho hodnota oddìlená ":". Hlavièka je ukonèena prázdným øádkem.
-			Tìlo je opìt sekvence øádkù.
+			Tìlo je opìt sekvence øádkù.\cite{web:imf}
 
 		\subsection{Maildir}
 			Adresáøová struktura Maildir je vhodná pro tøídìní emailù. Ka¾dý
@@ -152,7 +155,8 @@
 	\section{Implementace}
 		Program je implementován v jazyce C a C++. Program vyu¾ívá objektového programování,
 		má deklarované tøídy Mail\_file, Mail\_dir a Arguments a vyu¾ívá nìkteré objekty i
-		ze standartních knihoven C++, napøíklad vector nebo string.
+		ze standartních knihoven C++, napøíklad vector nebo string. Pro md5 algoritmus byla
+		pou¾ita tøída md5.
 
 		Aplikace je vytvoøena pro operaèní systém Linux a byla vyvýjena
 		na Ubuntu 16.04 LTS a testována na systémech Ubuntu 16.04 LTS a CentOS 7.4
@@ -160,9 +164,12 @@
 		Program je pøekládán pomocí pøekladaèe g++ a pro pøeklad slou¾í soubor
 		Makefile.
 
-   \section{Závìr}
+	\section{Závìr}
        Aplikaci popser lze pou¾ít jako POP3 server pro správu jediného úètu. Jsou
 	   v nìm implementovány v¹echny povinné i volitelné funkcionality a byl vyvynut
 	   pro operaèní systém Linux.
+
+	   \newpage
+	   \bibliography{literatura}
 
 \end{document}
