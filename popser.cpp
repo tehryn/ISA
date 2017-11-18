@@ -254,6 +254,7 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 					if ( state == STATE_AUTHORIZED ) {
 						if ( access_maildir( &directory, user, directory_path ) ) {
 							message = "-ERR Cannot access Maildir";
+							state = STATE_START;
 							mail_dir_lock.unlock();
 						}
 					}
@@ -263,6 +264,7 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 				}
 				else {
 					message = "-ERR Maildir is currently beeing used.";
+					state = STATE_START;
 				}
 			}
 			else {
