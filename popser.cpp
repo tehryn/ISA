@@ -208,7 +208,7 @@ void talk_with_client( int sockcomm, const string * directory_path, const string
 	Mail_dir directory; // Maildir
 
 	gethostname( hostname, 63 );
-	md5_pass = "<" + to_string( pid ) + "." + to_string( epoch ) + "@" + hostname + ">";
+	md5_pass = "<" + to_string( pid ) + "." + to_string( epoch ) + "." + to_string( sockcomm ) + "@" + hostname + ">";
 	message += md5_pass + "\r\n";
 	md5_pass = md5( md5_pass + *pass );
 	DEBUG_INLINE( "APOP " );

@@ -118,7 +118,8 @@
 			vypí¹e v¹echny emaily, které nejsou oznaèeny ke smazaní a~ka¾dému pøidìlí
 			ID a~vedle ID vypí¹e jeho velikost v~oktetech. UIDL k~ID zprávám vypí¹e
 			jejich unikátní ID v~rámci celého Maildiru. ID zpráv se na rozdíl od
-			tohoto unikátního ID mù¾e mìnit.\cite{web:pop3}
+			tohoto unikátního ID mù¾e mìnit (ID je unikátní pouze v rámci jednoho
+			sezení)\cite{web:pop3}
 
 			Pro zji¹tìní velikosti Maildiru (bez slo¾ky tmp) lze pou¾ít pøíkaz STAT.
 			Uvedená velikost je v~oktetech.\cite{web:pop3}
@@ -144,7 +145,7 @@
 
     \section{Návrh programu}
 		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s~klíèem
-		pro ¹ifrování. Klíè se nacházi na konci zprávy a~je ve formátu <process-ID.clock@hostname>.
+		pro ¹ifrování. Klíè se nacházi na konci zprávy a~je ve formátu <process-ID.clock.socket\_descriptor@hostname>.
 		Následnì program oèekává pøíkaz APOP nebo USER a~PASS, podle argumentù programu.
 		Po úspì¹ném pøihlá¹ení u¾ivatele server pøistoupí k~Maildir a~pøesune v¹echny
 		zprávy ze slo¾ky new do cur. Následnì server oèekává dal¹í pøíkazy od klienta.
