@@ -128,7 +128,7 @@
 			Do té doby je mo¾né obnovit zprávy oznaèené ke smazání pøíkazem \texttt{RSET} \cite{web:pop3}.
 
 			Na pøíkaz \texttt{NOOP} server pouze odpoví \cite{web:pop3}.
-
+		\par\nobreak\@afterheading
 		\subsection{stavy serveru}
 			POP3 server má 3 základní stavy.
 			\begin{itemize}
@@ -136,6 +136,7 @@
 				\item TRANSACTION
 				\item UPDATE
 			\end{itemize}
+
 			Ve stavu AUTHORIZATION lze pouze pou¾ívát pøíkazy \texttt{USER}, \texttt{PASS}, \texttt{APOP} a~\texttt{QUIT},
 			tento stav slou¾í k~autorizaci u¾ivatle, poté co se u¾ivatel proká¾e
 			platnými pøihla¹ovacími údaji, pøejde se do stavu TRANSACTION. Ve stavu
