@@ -63,10 +63,10 @@
 
 		\subsection{IMF - Internet message format}
 			Internetová zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
-			mohou nabývat US-ASCII hodnot 1-127 \cite{web:imf}.
+			mohou nabývat \texttt{US-ASCII} hodnot 1-127 \cite{web:imf}.
 
 			Zprávu tvoøí jednotlivé øádky. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
-			\texttt{CR} (ASCII hodnota 13) a~\texttt{LF} (ASCII hodnota 10) \cite{web:imf}.
+			\texttt{CR} (\texttt{ASCII} hodnota 13) a~\texttt{LF} (\texttt{ASCII} hodnota 10) \cite{web:imf}.
 
 			Zpráva se dále skládá z~hlavièky, po které mù¾e následovat tìlo.
 			Hlavièka je sekvence øádkù. Na ka¾dém øádku hlavièky je název pole
@@ -89,45 +89,45 @@
 			Ní¾e jsou uvedeny v¹echny mo¾né dotazy, vèetnì volitelných, na POP3
 			server. Vèechny tyto pøíkazy jsou implementovány v~programu popser.
 			\begin{itemize}
-				\item \textsc{USER} jmeno\_uzivatele
-				\item \textsc{PASS} heslo
-				\item \textsc{APOP} jmeno\_uzivatele heslo
-				\item \textsc{STAT}
-				\item \textsc{LIST} [message\_id]
-				\item \textsc{RETR} message\_id
-				\item \textsc{DELE} message\_id
-				\item \textsc{NOOP}
-				\item \textsc{RSET}
-				\item \textsc{QUIT}
-				\item \textsc{TOP} message\_id lines
-				\item \textsc{UIDL} [message\_id]
+				\item \texttt{USER} jmeno\_uzivatele
+				\item \texttt{PASS} heslo
+				\item \texttt{APOP} jmeno\_uzivatele heslo
+				\item \texttt{STAT}
+				\item \texttt{LIST} [message\_id]
+				\item \texttt{RETR} message\_id
+				\item \texttt{DELE} message\_id
+				\item \texttt{NOOP}
+				\item \texttt{RSET}
+				\item \texttt{QUIT}
+				\item \texttt{TOP} message\_id lines
+				\item \texttt{UIDL} [message\_id]
 			\end{itemize}
-			Pro pøihlá¹ení na server slou¾í pøíkazy \textsc{USER}, \textsc{PASS} a~\textsc{APOP}. \textsc{APOP} vyu¾ívá
+			Pro pøihlá¹ení na server slou¾í pøíkazy \texttt{USER}, \texttt{PASS} a~\texttt{APOP}. \texttt{APOP} vyu¾ívá
 			md5 k~zakódování hesla. Klíè obdr¾í od serveru na zaèátku spojení a~ke
 			klíèi pøipojí své heslo a~výsledný øetìzec znakù za¹ifruje md5 algoritmem.
-			\textsc{USER} a~\textsc{PASS} slou¾í k~ne¹ifrovanému pøenosu. Pokud server podporuje \textsc{APOP},
-			nesmí podporovat pøíkazy \textsc{USER} ani \textsc{PASS} a~obrácenì. V~programu popser lze
+			\texttt{USER} a~\texttt{PASS} slou¾í k~ne¹ifrovanému pøenosu. Pokud server podporuje \texttt{APOP},
+			nesmí podporovat pøíkazy \texttt{USER} ani \texttt{PASS} a~obrácenì. V~programu popser lze
 			pøepínat mezi podporou tìchto pøíkazù pomocí argumentù programu pøi jeho
 			spu¹tìní \cite{web:pop3}.
 
-			K~pøeètení zprávy lze pou¾ít pøíkazy \textsc{TOP} a~\textsc{RETR}. Pomocí pøíkazy \textsc{TOP}
+			K~pøeètení zprávy lze pou¾ít pøíkazy \texttt{TOP} a~\texttt{RETR}. Pomocí pøíkazy \texttt{TOP}
 			klient získá hlavièku zprávy a~pøedem zadaný poèet øádkù zprávy (parametr lines),
 			pokud je zadané vìt¹í èíslo, ne¾ je celkový poèet øádkù, ode¹le se celý email \cite{web:pop3}.
 
-			K~získání identifikátorù emailù lze pou¾ít pøíkazi \textsc{LIST} a~\textsc{UIDL}. List
+			K~získání identifikátorù emailù lze pou¾ít pøíkazi \texttt{LIST} a~\texttt{UIDL}. List
 			vypí¹e v¹echny emaily, které nejsou oznaèeny ke smazaní a~ka¾dému pøidìlí
-			\textsc{ID} a~vedle \textsc{ID} vypí¹e jeho velikost v~oktetech. \textsc{UIDL} k~\textsc{ID} zprávám vypí¹e
-			jejich unikátní \textsc{ID} v~rámci celého Maildiru. \textsc{ID} zpráv se na rozdíl od
-			tohoto unikátního \textsc{ID} mù¾e mìnit (\textsc{ID} je unikátní pouze v rámci jednoho
+			\texttt{ID} a~vedle \texttt{ID} vypí¹e jeho velikost v~oktetech. \texttt{UIDL} k~\texttt{ID} zprávám vypí¹e
+			jejich unikátní \texttt{ID} v~rámci celého Maildiru. \texttt{ID} zpráv se na rozdíl od
+			tohoto unikátního \texttt{ID} mù¾e mìnit (\texttt{ID} je unikátní pouze v rámci jednoho
 			sezení) \cite{web:pop3}.
 
-			Pro zji¹tìní velikosti Maildiru (bez slo¾ky tmp) lze pou¾ít pøíkaz \textsc{STAT}.
+			Pro zji¹tìní velikosti Maildiru (bez slo¾ky tmp) lze pou¾ít pøíkaz \texttt{STAT}.
 			Uvedená velikost je v~oktetech \cite{web:pop3}.
 
-			\textsc{DELE} slou¾í k~mazání zpráv. Zprávy se ma¾ou a¾ po zadání pøíkazu \textsc{QUIT}.
-			Do té doby je mo¾né obnovit zprávy oznaèené ke smazání pøíkazem \textsc{RSET} \cite{web:pop3}.
+			\texttt{DELE} slou¾í k~mazání zpráv. Zprávy se ma¾ou a¾ po zadání pøíkazu \texttt{QUIT}.
+			Do té doby je mo¾né obnovit zprávy oznaèené ke smazání pøíkazem \texttt{RSET} \cite{web:pop3}.
 
-			Na pøíkaz \textsc{NOOP} server pouze odpoví \cite{web:pop3}.
+			Na pøíkaz \texttt{NOOP} server pouze odpoví \cite{web:pop3}.
 
 		\subsection{stavy serveru}
 			POP3 server má 3 základní stavy.
@@ -136,21 +136,21 @@
 				\item TRANSACTION
 				\item UPDATE
 			\end{itemize}
-			Ve stavu AUTHORIZATION lze pouze pou¾ívát pøíkazy \textsc{USER}, \textsc{PASS}, \textsc{APOP} a~\textsc{QUIT},
+			Ve stavu AUTHORIZATION lze pouze pou¾ívát pøíkazy \texttt{USER}, \texttt{PASS}, \texttt{APOP} a~\texttt{QUIT},
 			tento stav slou¾í k~autorizaci u¾ivatle, poté co se u¾ivatel proká¾e
 			platnými pøihla¹ovacími údaji, pøejde se do stavu TRANSACTION. Ve stavu
-			TRANSACTION lze pou¾ít v¹echny pøíkazy, vyjma \textsc{USER}, \textsc{PASS} a~\textsc{APOP}. Stav
-			TRANSACTION trvá doku klient nezadá \textsc{QUIT}, poté se pøejde do stavu UPDATE.
+			TRANSACTION lze pou¾ít v¹echny pøíkazy, vyjma \texttt{USER}, \texttt{PASS} a~\texttt{APOP}. Stav
+			TRANSACTION trvá doku klient nezadá \texttt{QUIT}, poté se pøejde do stavu UPDATE.
 			Ve stavu UPDATE se provede mazání zpráv a~následné ukonèení komunikace \cite{web:pop3}.
 
     \section{Návrh programu}
 		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s~klíèem
 		pro ¹ifrování. Klíè se nacházi na konci zprávy a~je ve formátu <process-ID.clock.socket\_descriptor@hostname>.
-		Následnì program oèekává pøíkaz \textsc{APOP} nebo \textsc{USER} a~\textsc{PASS}, podle argumentù programu.
+		Následnì program oèekává pøíkaz \texttt{APOP} nebo \texttt{USER} a~\texttt{PASS}, podle argumentù programu.
 		Po úspì¹ném pøihlá¹ení u¾ivatele server pøistoupí k~Maildir a~pøesune v¹echny
 		zprávy ze slo¾ky new do cur. Následnì server oèekává dal¹í pøíkazy od klienta.
-		Pokud klient zadá pøíkaz \textsc{QUIT}, server sma¾e v¹echny soubory oznaèené ke smazání.
-		Pokud se klient odpojí bez u¾ití pøíkazu \textsc{QUIT} nebo se spojení pøeru¹í,
+		Pokud klient zadá pøíkaz \texttt{QUIT}, server sma¾e v¹echny soubory oznaèené ke smazání.
+		Pokud se klient odpojí bez u¾ití pøíkazu \texttt{QUIT} nebo se spojení pøeru¹í,
 		emaily oznaèené ke smazání zùstanou nedotèeny.
 
 	\section{Implementace}
@@ -174,17 +174,17 @@
 			\begin{itemize}
 				\item{ popser -r }
 				\item{ popser -h }
-				\item{ popser -a AUTH\_FILE -d MAILDIR -p PORT [ -c ] [ -r ] }
+				\item{ popser -a \texttt{AUTH\_FILE} -d \texttt{MAILDIR} -p \texttt{PORT} [ -c ] [ -r ] }
 			\end{itemize}
 			Argument -h vypí¹e struèný návod k obsluze programu. Argument -r uvede
 			slo¾ku Maildir do pùvodního stavu (kromì obnovení smazaných emailù).
-			AUTH\_FILE je cesta k souboru s u¾ivatelským jménem a heslem. MAILDIR
+			\texttt{AUTH\_FILE} je cesta k souboru s u¾ivatelským jménem a heslem. \texttt{MAILDIR}
 			je cesta ke slo¾ce, která obsahuje minimálnì slo¾ky new a cur. S touto
-			slo¾kou bude následnì popser pracovat. PORT je èíslo portu, na kterém
+			slo¾kou bude následnì popser pracovat. \texttt{PORT} je èíslo portu, na kterém
 			se budou moci pøipojit klienti. Pokud je zadám parametr -c, tak se
-			se pøihla¹ovací údaje zadávají pomocí \textsc{USER} a \textsc{PASS} a heslo je na síti
+			se pøihla¹ovací údaje zadávají pomocí \texttt{USER} a \texttt{PASS} a heslo je na síti
 			pøená¹eno ne¹ifrovanì. Pokud -c zadán není, autorizace probíhá pomocí
-			pøíkazu \textsc{APOP}.
+			pøíkazu \texttt{APOP}.
 		\subsection{Pøíklady}
 			\begin{itemize}
 				\item {popser -a ./user.txt -p 8888 -d ./Maildir/}
@@ -192,7 +192,7 @@
 			Ze souboru ./user.txt budou naèteny u¾ivatelské údaje. Ve slo¾ce ./Maildir/
 			budou oèekávany slo¾ky cur a new ve kterých se budou nacházet soubory
 			reprezentující emaily. Na portu 8888 bude probíhat komunikace a k
-			autorizovat se bude muset u¾ivatel pomocí pøíkazu \textsc{APOP}.
+			autorizovat se bude muset u¾ivatel pomocí pøíkazu \texttt{APOP}.
 
 			\begin{itemize}
 					\item {popser -r}
