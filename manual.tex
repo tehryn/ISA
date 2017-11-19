@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper,titlepage]{article}
+\documentclass[11pt,a4paper,titlepage]{article}
 \usepackage[left=1.5cm,text={18cm, 25cm},top=2.5cm]{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
@@ -63,15 +63,15 @@
 
 		\subsection{IMF - Internet message format}
 			Internetová zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
-			mohou nabývat US-ASCII hodnot 1-127.\cite{web:imf}
+			mohou nabývat US-ASCII hodnot 1-127 \cite{web:imf}.
 
 			Zprávu tvoøí jednotlivé øádky. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
-			CR (ASCII hodnota 13) a~LF (ASCII hodnota 10).\cite{web:imf}
+			CR (ASCII hodnota 13) a~LF (ASCII hodnota 10) \cite{web:imf}.
 
 			Zpráva se dále skládá z~hlavièky, po které mù¾e následovat tìlo.
 			Hlavièka je sekvence øádkù. Na ka¾dém øádku hlavièky je název pole
 			a jeho hodnota oddìlená ":". Hlavièka je ukonèena prázdným øádkem.
-			Tìlo je opìt sekvence øádkù.\cite{web:imf}
+			Tìlo je opìt sekvence øádkù \cite{web:imf}.
 
 		\subsection{Maildir}
 			Adresáøová struktura Maildir je vhodná pro tøídìní emailù. Ka¾dý
@@ -112,22 +112,22 @@
 
 			K~pøeètení zprávy lze pou¾ít pøíkazy TOP a~RETR. Pomocí pøíkazy TOP
 			klient získá hlavièku zprávy a~pøedem zadaný poèet øádkù zprávy (parametr lines),
-			pokud je zadané vìt¹í èíslo, ne¾ je celkový poèet øádkù, ode¹le se celý email.\cite{web:pop3}
+			pokud je zadané vìt¹í èíslo, ne¾ je celkový poèet øádkù, ode¹le se celý email \cite{web:pop3}.
 
 			K~získání identifikátorù emailù lze pou¾ít pøíkazi LIST a~UIDL. List
 			vypí¹e v¹echny emaily, které nejsou oznaèeny ke smazaní a~ka¾dému pøidìlí
 			ID a~vedle ID vypí¹e jeho velikost v~oktetech. UIDL k~ID zprávám vypí¹e
 			jejich unikátní ID v~rámci celého Maildiru. ID zpráv se na rozdíl od
 			tohoto unikátního ID mù¾e mìnit (ID je unikátní pouze v rámci jednoho
-			sezení)\cite{web:pop3}
+			sezení) \cite{web:pop3}.
 
 			Pro zji¹tìní velikosti Maildiru (bez slo¾ky tmp) lze pou¾ít pøíkaz STAT.
-			Uvedená velikost je v~oktetech.\cite{web:pop3}
+			Uvedená velikost je v~oktetech \cite{web:pop3}.
 
 			DELE slou¾í k~mazání zpráv. Zprávy se ma¾ou a¾ po zadání pøíkazu QUIT.
-			Do té doby je mo¾né obnovit zprávy oznaèené ke smazání pøíkazem RSET.\cite{web:pop3}
+			Do té doby je mo¾né obnovit zprávy oznaèené ke smazání pøíkazem RSET \cite{web:pop3}.
 
-			Na pøíkaz NOOP server pouze odpoví.\cite{web:pop3}
+			Na pøíkaz NOOP server pouze odpoví \cite{web:pop3}.
 
 		\subsection{stavy serveru}
 			POP3 server má 3 základní stavy.
@@ -141,7 +141,7 @@
 			platnými pøihla¹ovacími údaji, pøejde se do stavu TRANSACTION. Ve stavu
 			TRANSACTION lze pou¾ít v¹echny pøíkazy, vyjma USER, PASS a~APOP. Stav
 			TRANSACTION trvá doku klient nezadá QUIT, poté se pøejde do stavu UPDATE.
-			Ve stavu UPDATE se provede mazání zpráv a~následné ukonèení komunikace.\cite{web:pop3}
+			Ve stavu UPDATE se provede mazání zpráv a~následné ukonèení komunikace \cite{web:pop3}.
 
     \section{Návrh programu}
 		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s~klíèem
@@ -157,7 +157,7 @@
 		Program je implementován v~jazyce C a~C++. Program vyu¾ívá objektového programování,
 		má deklarované tøídy Mail\_file, Mail\_dir a~Arguments a~vyu¾ívá nìkteré objekty i
 		ze standartních knihoven C++, napøíklad vector nebo string. Pro md5 algoritmus byla
-		pou¾ita tøída md5\cite{web:md5}.
+		pou¾ita tøída md5 \cite{web:md5}.
 
 		Aplikace je vytvoøena pro operaèní systém Linux a~byla vyvýjena
 		na Ubuntu 16.04 LTS a~testována na systémech Ubuntu 16.04 LTS a~CentOS 7.4
