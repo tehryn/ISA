@@ -147,7 +147,8 @@
 
     \section{Návrh programu}
 		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s~klíèem
-		pro ¹ifrování. Klíè se nachází na konci zprávy a~je ve formátu <process-ID.clock.socket\_descriptor@hostname>.
+		pro ¹ifrování. Klíè se nachází na konci zprávy a~je ve formátu \\
+		\textless process-ID.clock.socket\_descriptor@hostname \textgreater.
 		Následnì program oèekává pøíkaz \texttt{APOP} nebo \texttt{USER} a~\texttt{PASS}, podle argumentù programu.
 		Po úspì¹ném pøihlá¹ení u¾ivatele server pøistoupí k~Maildir a~pøesune v¹echny
 		zprávy ze slo¾ky new do cur. Následnì server oèekává dal¹í pøíkazy od klienta.

@@ -44,13 +44,10 @@ popser -r
 
 Undo all changes.
 ##EXAMPLE 3
-popser -a ./user.txt -p 8888 -d ./Maildir/
+popser -a ./user.txt -p 8888 -d ./Maildir/ -c
 
 Start server on port 8888, loads user info from ./user.txt and works with directories ./Maildir/new and ./Maildir/cur.
-
-##BUGS
-* Only one client can be connected at time.
-* Connecting to *ftrestd* with different client that *ftrest* can cause unexpected behavior
+After the server recive SIGINT or SIGTERM, he will try to clean after himself (rename back all files, he renamed during its proccess)
 
 ##AUTHOR
 Written by Matějka Jiří, xmatej52@stud.fit.vutbr.cz
