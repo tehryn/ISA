@@ -9,6 +9,7 @@ vector<thread *> threads;
 vector<int>      sockets;
 mutex mail_dir_lock;
 long unsigned thread_lock_id;
+bool reverse = false;
 
 // ./popser [-h] [-a PATH] [-c] [-p PORT] [-d PATH] [-r]
 // constructor of class arguments
@@ -89,7 +90,7 @@ void reverse_all() {
 	// after we have all of records in vecotor, we can start renaming
 	for( string & filename:records ) {
 		if ( old_file.size() ) {
-			if ( rename( old_file.c_str(), filename.c_str() ) ) {
+			if ( access( filename.c_str(), F_OK ) == -1 && rename( old_file.c_str(), filename.c_str() ) ) {
 				//cerr << "WARNING: Cannot rename file " << old_file << " to " << filename << endl;
 			}
 			old_file = "";
@@ -180,6 +181,9 @@ void quit( int sig ) {
 	// closing sockets
 	for ( int & sock: sockets ) {
 		close( sock );
+	}
+	if ( reverse ) {
+		reverse_all();
 	}
 	exit(0);
 }
@@ -367,9 +371,12 @@ int main( int argc, char **argv) {
 
 	// reseting server
 	if ( args.reset ) {
-		reverse_all();
 		if ( args.port < 1 ) {
+			reverse_all();
 			return 0;
+		}
+		else {
+			reverse = true;
 		}
 	}
 

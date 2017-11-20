@@ -65,7 +65,7 @@
 			Internetová zpráva ve formatu IMF není nic jiného, ne¾ série znakù. Znaky
 			mohou nabývat \texttt{US-ASCII} hodnot 1-127 \cite{web:imf}.
 
-			Zprávu tvoøí jednotlivé øádky. Ka¾dý øádek je ukonèena dvìmi po sobì jdoucími znaky -
+			Zprávu tvoøí jednotlivé øádky. Ka¾dá øádka je ukonèena dvìma po sobì jdoucími znaky -
 			\texttt{CR} (\texttt{ASCII} hodnota 13) a~\texttt{LF} (\texttt{ASCII} hodnota 10) \cite{web:imf}.
 
 			Zpráva se dále skládá z~hlavièky, po které mù¾e následovat tìlo.
@@ -88,7 +88,7 @@
 		\newpage
 		\subsection{POP3 pøíkazy}
 			Ní¾e jsou uvedeny v¹echny mo¾né dotazy, vèetnì volitelných, na POP3
-			server. Vèechny tyto pøíkazy jsou implementovány v~programu popser.
+			server. V¹echny tyto pøíkazy jsou implementovány v~programu popser.
 			\begin{itemize}
 				\item \texttt{USER} jmeno\_uzivatele
 				\item \texttt{PASS} heslo
@@ -111,11 +111,11 @@
 			pøepínat mezi podporou tìchto pøíkazù pomocí argumentù programu pøi jeho
 			spu¹tìní \cite{web:pop3}.
 
-			K~pøeètení zprávy lze pou¾ít pøíkazy \texttt{TOP} a~\texttt{RETR}. Pomocí pøíkazy \texttt{TOP}
+			K~pøeètení zprávy lze pou¾ít pøíkazy \texttt{TOP} a~\texttt{RETR}. Pomocí pøíkazu \texttt{TOP}
 			klient získá hlavièku zprávy a~pøedem zadaný poèet øádkù zprávy (parametr lines),
 			pokud je zadané vìt¹í èíslo, ne¾ je celkový poèet øádkù, ode¹le se celý email \cite{web:pop3}.
 
-			K~získání identifikátorù emailù lze pou¾ít pøíkazi \texttt{LIST} a~\texttt{UIDL}. List
+			K~získání identifikátorù emailù lze pou¾ít pøíkazy \texttt{LIST} a~\texttt{UIDL}. List
 			vypí¹e v¹echny emaily, které nejsou oznaèeny ke smazaní a~ka¾dému pøidìlí
 			\texttt{ID} a~vedle \texttt{ID} vypí¹e jeho velikost v~oktetech. \texttt{UIDL} k~\texttt{ID} zprávám vypí¹e
 			jejich unikátní \texttt{ID} v~rámci celého Maildiru. \texttt{ID} zpráv se na rozdíl od
@@ -138,16 +138,16 @@
 				\item UPDATE
 			\end{itemize}
 
-			Ve stavu AUTHORIZATION lze pouze pou¾ívát pøíkazy \texttt{USER}, \texttt{PASS}, \texttt{APOP} a~\texttt{QUIT},
+			Ve stavu AUTHORIZATION lze pouze pou¾ívat pøíkazy \texttt{USER}, \texttt{PASS}, \texttt{APOP} a~\texttt{QUIT},
 			tento stav slou¾í k~autorizaci u¾ivatle, poté co se u¾ivatel proká¾e
 			platnými pøihla¹ovacími údaji, pøejde se do stavu TRANSACTION. Ve stavu
 			TRANSACTION lze pou¾ít v¹echny pøíkazy, vyjma \texttt{USER}, \texttt{PASS} a~\texttt{APOP}. Stav
-			TRANSACTION trvá doku klient nezadá \texttt{QUIT}, poté se pøejde do stavu UPDATE.
+			TRANSACTION trvá dokud klient nezadá \texttt{QUIT}, poté se pøejde do stavu UPDATE.
 			Ve stavu UPDATE se provede mazání zpráv a~následné ukonèení komunikace \cite{web:pop3}.
 
     \section{Návrh programu}
 		Po pøipojení klienta na server, aplikace popser ode¹le uvítací zprávu s~klíèem
-		pro ¹ifrování. Klíè se nacházi na konci zprávy a~je ve formátu <process-ID.clock.socket\_descriptor@hostname>.
+		pro ¹ifrování. Klíè se nachází na konci zprávy a~je ve formátu <process-ID.clock.socket\_descriptor@hostname>.
 		Následnì program oèekává pøíkaz \texttt{APOP} nebo \texttt{USER} a~\texttt{PASS}, podle argumentù programu.
 		Po úspì¹ném pøihlá¹ení u¾ivatele server pøistoupí k~Maildir a~pøesune v¹echny
 		zprávy ze slo¾ky new do cur. Následnì server oèekává dal¹í pøíkazy od klienta.
@@ -158,7 +158,7 @@
 	\section{Implementace}
 		Program je implementován v~jazyce C a~C++. Program vyu¾ívá objektového programování,
 		má deklarované tøídy Mail\_file, Mail\_dir a~Arguments a~vyu¾ívá nìkteré objekty i
-		ze standartních knihoven C++, napøíklad vector nebo string. Pro md5 algoritmus byla
+		ze standardních knihoven C++, napøíklad vector nebo string. Pro md5 algoritmus byla
 		pou¾ita tøída md5 \cite{web:md5}.
 
 		Aplikace je vytvoøena pro operaèní systém Linux a~byla vyvýjena
@@ -168,7 +168,7 @@
 		Makefile.
 
 	\section{Návod k pou¾ití}
-		V této èásti dokuemtu je uveden návod k pou¾ítí a pár pøíkladu u¾ití.
+		V této èásti dokumetu je uveden návod k pou¾ítí a pár pøíkladù u¾ití.
 		\subsection{Pøeklad aplikace}
 			Aplikaci lze pøelo¾it pøíkazem make ve slo¾ce se souborem Makefile.
 		\subsection{Spu¹tìní serveru}
@@ -183,7 +183,7 @@
 			\texttt{AUTH\_FILE} je cesta k souboru s u¾ivatelským jménem a heslem. \texttt{MAILDIR}
 			je cesta ke slo¾ce, která obsahuje minimálnì slo¾ky new a cur. S touto
 			slo¾kou bude následnì popser pracovat. \texttt{PORT} je èíslo portu, na kterém
-			se budou moci pøipojit klienti. Pokud je zadám parametr -c, tak se
+			se budou moci pøipojit klienti. Pokud je zadán parametr -c, tak
 			se pøihla¹ovací údaje zadávají pomocí \texttt{USER} a \texttt{PASS} a heslo je na síti
 			pøená¹eno ne¹ifrovanì. Pokud -c zadán není, autorizace probíhá pomocí
 			pøíkazu \texttt{APOP}.
@@ -193,17 +193,17 @@
 			\end{itemize}
 			Ze souboru ./user.txt budou naèteny u¾ivatelské údaje. Ve slo¾ce ./Maildir/
 			budou oèekávany slo¾ky cur a new ve kterých se budou nacházet soubory
-			reprezentující emaily. Na portu 8888 bude probíhat komunikace a k
+			reprezentující emaily. Na portu 8888 bude probíhat komunikace a
 			autorizovat se bude muset u¾ivatel pomocí pøíkazu \texttt{APOP}.
 
 			\begin{itemize}
 					\item {popser -r}
 			\end{itemize}
-			Soubor uvede Maildir zvrátí ve¹keré operace se soubory (kromì odstranìní).
+			Soubor uvede Maildir do pùvodního stavu, tj. zvrátí ve¹keré operace se soubory (kromì odstranìní).
 
 	\section{Závìr}
        Aplikaci popser lze pou¾ít jako POP3 server pro správu jediného úètu. Jsou
-	   v~nìm implementovány v¹echny povinné i volitelné funkcionality a~byl vyvynut
+	   v~nìm implementovány v¹echny povinné i volitelné funkcionality a~byl vyvinut
 	   pro operaèní systém Linux.
 
 	\newpage
